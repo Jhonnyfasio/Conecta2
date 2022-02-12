@@ -1,1 +1,1 @@
-web: gunicorn Conecta2.wsgi --log-file -
+web: gunicorn conecta2-peju.wsgi --log-file -
