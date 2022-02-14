@@ -1,1 +1,1 @@
-web: gunicorn conecta2.wsgi --log-file -
+web: gunicorn Conecta2.wsgi --log-file -
