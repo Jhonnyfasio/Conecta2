@@ -1,0 +1,1 @@
+web: gunicorn conecta2.wsgi --log-file -
