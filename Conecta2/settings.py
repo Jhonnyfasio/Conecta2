@@ -26,10 +26,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-+m5!m3%e=uh)5pa99!p5)wf_*qfg24-wb#h3fh=ej52mj04d7t'
+#SECRET_KEY = 'django-insecure-+m5!m3%e=uh)5pa99!p5)wf_*qfg24-wb#h3fh=ej52mj04d7t'
+SECRET_KEY = config('SECRET_KEY', default='ffsfsdf222398788iidaqmzzp39101ñ2km5223')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = config('DJANGO_DEBUG', default=True, cast=bool)
+
 
 ALLOWED_HOSTS = ['*']
 
@@ -80,12 +82,12 @@ WSGI_APPLICATION = 'Conecta2.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
-#DATABASES = {
-#    'default': {
-#        'ENGINE': 'django.db.backends.sqlite3',
-#        'NAME': BASE_DIR / 'db.sqlite3',
-#    }
-#}
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    }
+}
 
 ##
 DATABASES = {
@@ -144,3 +146,6 @@ STATICFILES_DIRS = (
 )
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+if config('DJANGO_PRODUCTION_ENV', default=False, cast=bool):
+    from .settings_production import *
