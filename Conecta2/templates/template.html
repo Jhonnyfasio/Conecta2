@@ -1,0 +1,40 @@
+<html>
+    <body>
+
+        {% include "header/header.html" %}
+
+        <h2 style="color:blue">
+            Esta es una plantilla HTML
+        </h2>
+
+        {% comment %}
+            Comentario Hola
+        {% endcomment %}
+
+        {% if nombre_persona == 'Pedrito' %}
+            <p>Su nombre es de tojo</p>
+        {% endif %}
+
+        <p>
+            El nombre de la persona es: {{nombre_persona.upper}}
+        </p>
+        <p>La fecha es: {{actualDate.day}} / {{actualDate.month}} / {{actualDate.year}}</p>
+        <p><strong>Temas del curso</strong></p>
+        <p>{{temas.1}}</p>
+        <p>
+            <ul>
+                {% if temas %}
+                    {% for actual in temas %}
+                        <li>{{actual}}</li>
+                    {% endfor %}
+
+                {% else %}
+                    <p>Nada por mostrar</p>
+
+                {% endif %}
+            </ul>
+            
+        </p>
+
+    </body>
+</html>

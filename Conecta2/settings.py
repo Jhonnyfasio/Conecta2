@@ -63,7 +63,7 @@ ROOT_URLCONF = 'Conecta2.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': ['/Users/soportecda/Desktop/Proyecto Modular/Django/Conecta2/Conecta2/templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -90,11 +90,11 @@ DATABASES = {
 }
 
 ##
-DATABASES = {
-    'default': dj_database_url.config(
-        default=config('DATABASE_URL')
-    )
-}
+#DATABASES = {
+#    'default': dj_database_url.config(
+#        default=config('DATABASE_URL')
+#    )
+#}
 
 
 # Password validation
