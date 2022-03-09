@@ -3,7 +3,7 @@ from django.db import models
 # Create your models here.
 
 class User(models.Model):
-    id = models.AutoField()
+    idUser = models.IntegerField()
     name = models.CharField(max_length=50)
     firstLastName = models.CharField(max_length=50)
     secondLastName = models.CharField(max_length=50)
@@ -13,17 +13,17 @@ class User(models.Model):
     updated_at = models.DateTimeField()
 
 class Message(models.Model):
-    id = models.AutoField()
+    idMessage = models.IntegerField()
     message = models.CharField(max_length=1000)
     created_at = models.DateTimeField()
 
 class Like(models.Model):
-    id = models.AutoField()
+    idLike = models.IntegerField()
     score = models.SmallIntegerField()
     created_at = models.DateTimeField()
 
 class Card(models.Model):
-    id = models.AutoField()
+    idCard = models.IntegerField()
     content = models.CharField(max_length=1000)
     translation = models.CharField(max_length=1000)
     created_at = models.DateTimeField()
