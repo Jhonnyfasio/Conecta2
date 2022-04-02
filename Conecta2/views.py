@@ -13,7 +13,7 @@ def greeting(request): #View
     return HttpResponse("Salu2 a to2")
 
 def pedro(request): #Second view
-    document = "<html><body><h1>Tojo</h1></body></html>"
+    document = "<html><body><h1>TojoOoOOOOooOoOoO</h1></body></html>"
     return HttpResponse(document)
 
 def date(request):
