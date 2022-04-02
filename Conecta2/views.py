@@ -41,7 +41,7 @@ def date(request):
     #return render(request, "template.html", {"nombre_persona":persona1.nombre, "actualDate":actual_date, "temas":temasCurso})
     return render(request, "template.html", {"nombre_persona":persona1.nombre})
 
-def ageCalculator(request, age, year): #Función calculadora de edad en cierto año.
+def ageCalculator(request, age, year): #Función calculadora de edad en cierto año..
     #ageActual = 18
     period = year-2022
     futureAge = age+period
