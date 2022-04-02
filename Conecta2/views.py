@@ -1,9 +1,8 @@
 from django.http import HttpResponse
-import datetime
 from django.template import Template, Context
 from django.template import loader
 from django.shortcuts import render
-
+import datetime
 
 class Persona(object):
     def __init__(self, nombre, apellido):
@@ -24,7 +23,7 @@ def date(request):
     nombre="Juan"
     temasCurso=["Plantillas","Modelos","Formularios","Vistas","Despliegue"]
 
-    actual_date = datetime.datetime.now()
+    #actual_date = datetime.datetime.now()
     
     #doc_externo=open("/Users/soportecda/Desktop/Proyecto Modular/Django/Conecta2/Conecta2/templates/template.html")
     #plt=Template(doc_externo.read())
@@ -39,7 +38,8 @@ def date(request):
 
     #return HttpResponse(document)
 
-    return render(request, "template.html", {"nombre_persona":persona1.nombre, "actualDate":actual_date, "temas":temasCurso})
+    #return render(request, "template.html", {"nombre_persona":persona1.nombre, "actualDate":actual_date, "temas":temasCurso})
+    return render(request, "template.html", {"nombre_persona":persona1.nombre})
 
 def ageCalculator(request, age, year): #Función calculadora de edad en cierto año.
     #ageActual = 18
@@ -63,6 +63,7 @@ def herence(request):
 
 
 def herenceCss(request):
-    actual_date = datetime.datetime.now()
+    #actual_date = datetime.datetime.now()
 
-    return render(request, "herenceCss.html", {"actualDate":actual_date})
+    return render(request, "herenceCss.html")
+    #return render(request, "herenceCss.html", {"actualDate":actual_date})
