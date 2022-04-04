@@ -13,17 +13,17 @@ def greeting(request): #View
     return HttpResponse("Salu2 a to2")
 
 def pedro(request): #Second view
-    document = "<html><body><h1>TojoOoOOOOooOoOoO</h1></body></html>"
+    document = "<html><body><h1>Tojo</h1></body></html>"
     return HttpResponse(document)
 
 def date(request):
 
     persona1=Persona("Pedrito", "Samas")
     
-    nombre="Juan"
+    nombre='Juan'
     temasCurso=["Plantillas","Modelos","Formularios","Vistas","Despliegue"]
 
-    #actual_date = datetime.datetime.now()
+    actual_date = datetime.datetime.now()
     
     #doc_externo=open("/Users/soportecda/Desktop/Proyecto Modular/Django/Conecta2/Conecta2/templates/template.html")
     #plt=Template(doc_externo.read())
@@ -39,9 +39,9 @@ def date(request):
     #return HttpResponse(document)
 
     #return render(request, "template.html", {"nombre_persona":persona1.nombre, "actualDate":actual_date, "temas":temasCurso})
-    return render(request, "template.html", {"nombre_persona":persona1.nombre})
+    return render(request, "template.html", {"nombre_persona":persona1.nombre, "actualDate":actual_date})
 
-def ageCalculator(request, age, year): #Función calculadora de edad en cierto año..
+def ageCalculator(request, age, year): #Función calculadora de edad en cierto año.
     #ageActual = 18
     period = year-2022
     futureAge = age+period
