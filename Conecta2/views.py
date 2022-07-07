@@ -9,7 +9,8 @@ class Persona(object):
         self.nombre=nombre
         self.apellido=apellido
 
-def greeting(request): #View
+
+def greeting(request):  # View
     return HttpResponse("Salu2 a to2")
 
 def pedro(request): #Second view
@@ -67,3 +68,6 @@ def herenceCss(request):
 
     return render(request, "herenceCss.html")
     #return render(request, "herenceCss.html", {"actualDate":actual_date})
+
+def pedro(request):
+    return HttpResponse("Juan el Tojo")
