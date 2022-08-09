@@ -26,8 +26,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-#SECRET_KEY = 'django-insecure-+m5!m3%e=uh)5pa99!p5)wf_*qfg24-wb#h3fh=ej52mj04d7t'
-SECRET_KEY = config('SECRET_KEY', default='ffsfsdf222398788iidaqmzzp39101ñ2km5223')
+# SECRET_KEY = 'django-insecure-+m5!m3%e=uh)5pa99!p5)wf_*qfg24-wb#h3fh=ej52mj04d7t'
+SECRET_KEY = config(
+    'SECRET_KEY', default='ffsfsdf222398788iidaqmzzp39101ñ2km5223')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DJANGO_DEBUG', default=True, cast=bool)
@@ -45,7 +46,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'gestionUsuarios'
+    'gestionUsuarios',
+    'api'
 ]
 
 MIDDLEWARE = [
@@ -57,7 +59,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
-] 
+]
 
 ROOT_URLCONF = 'Conecta2.urls'
 
@@ -84,38 +86,38 @@ WSGI_APPLICATION = 'Conecta2.wsgi.application'
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 DATABASES = {
     'default': {
-        #'ENGINE': 'django.db.backends.sqlite3',
-        #'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        # 'ENGINE': 'django.db.backends.sqlite3',
+        # 'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'conectados',
-        'USER': 'postgres',
-        'PASSWORD': 'jhnnfsio123',
-        'HOST': '127.0.0.1',
+        'NAME': 'd68amv284hpn7n',
+        'USER': 'fyotlazppuqhna',
+        'PASSWORD': '20c467abafb5c6d6f4294068e03fcfa9d4be28ed61419cb711392c34c69dc6f3',
+        'HOST': 'ec2-34-233-157-189.compute-1.amazonaws.com',
         'DATABASE_PORT': '5432',
     }
 }
 
 ##
 
-#DATABASES = {
+# DATABASES = {
 #    'default': dj_database_url.config(
 #        default=config('DATABASE_URL')
 #    )
-#}
+# }
 
-#DATABASES = {
+# DATABASES = {
 #    'default': {
 #        'ENGINE': 'django.db.backends.sqlite3',
 #        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
 #    }
-#}
+# }
 
 ##
-#DATABASES = {
+# DATABASES = {
 #    'default': dj_database_url.config(
 #        default=config('DATABASE_URL')
 #    )
-#}
+# }
 
 
 # Password validation
