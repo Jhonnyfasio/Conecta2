@@ -18,13 +18,13 @@ class CardPostView(View):
     def get(self, request):
         cards = list(CardPost.objects.values())
         if len(cards) > 0:
-            data = {'message': 'Success', 'cards': cards}
+            data = {'message': 'Successw', 'cards': cards}
             return Response(data, status=status.HTTP_200_OK)
         else:
             data = {'message': 'Cards not found...'}
         return Response(data, status=status.HTTP_404_NOT_FOUND)
 
-    def get(self, request, id_category):
+    def put(self, request, id_category):
         cards = list(CardPost.objects.filter(id_category=id_category).values())
 
         if len(cards) > 0:
@@ -35,9 +35,6 @@ class CardPostView(View):
             return Response(data, status=status.HTTP_404_NOT_FOUND)
 
     def post(self, request):
-        pass
-
-    def put(self, request):
         pass
 
     def delete(self, request):
