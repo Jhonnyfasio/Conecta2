@@ -21,7 +21,7 @@ class CardPostView(View):
             data = {'message': 'Cards not found...'}
         return Response(data, status=status.HTTP_404_NOT_FOUND)
 
-    def put(self, request, id_category):
+    def get(self, request, id_category):
         cards = list(CardPost.objects.filter(id_category=id_category).values())
 
         if len(cards) > 0:
@@ -32,46 +32,6 @@ class CardPostView(View):
             return Response(data, status=status.HTTP_404_NOT_FOUND)
 
     def post(self, request):
-        pass
-
-    def delete(self, request):
-        pass
-
-
-class UserView(View):
-
-    def get(self, request):
-        users = list(User.objects.values())
-        if len(users) > 0:
-            data = {'message': 'Success', 'users': users}
-        else:
-            data = {'message': 'users not found...'}
-        return JsonResponse(data)
-
-    def post(self, request):
-        pass
-
-    def put(self, request):
-        pass
-
-    def delete(self, request):
-        pass
-
-
-class LikeView(View):
-
-    def get(self, request):
-        likes = list(Like.objects.values())
-        if len(likes) > 0:
-            data = {'message': 'Success', 'likes': likes}
-        else:
-            data = {'message': 'likes not found...'}
-        return JsonResponse(data)
-
-    def post(self, request):
-        pass
-
-    def put(self, request):
         pass
 
     def delete(self, request):
