@@ -1,7 +1,7 @@
 from django.http.response import JsonResponse
-from django.utils.decorators import method_decorator
+
 from django.views import View
-from django.views.decorators.csrf import csrf_exempt
+
 from .models import CardPost, User, Like
 from rest_framework import status
 from rest_framework.response import Response
@@ -11,9 +11,6 @@ import json
 
 
 class CardPostView(View):
-    @method_decorator(csrf_exempt)
-    def dispatch(self, request, *args, **kwargs):
-        return super().dispatch(request, *args, **kwargs)
 
     def get(self, request):
         cards = list(CardPost.objects.values())
@@ -42,9 +39,6 @@ class CardPostView(View):
 
 
 class UserView(View):
-    @method_decorator(csrf_exempt)
-    def dispatch(self, request, *args, **kwargs):
-        return super().dispatch(request, *args, **kwargs)
 
     def get(self, request):
         users = list(User.objects.values())
@@ -65,9 +59,6 @@ class UserView(View):
 
 
 class LikeView(View):
-    @method_decorator(csrf_exempt)
-    def dispatch(self, request, *args, **kwargs):
-        return super().dispatch(request, *args, **kwargs)
 
     def get(self, request):
         likes = list(Like.objects.values())
