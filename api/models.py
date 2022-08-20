@@ -21,7 +21,7 @@ class CardPost(models.Model):
 
 class Like(models.Model):
     status = models.BooleanField()
-    id_user = models.ForeignKey(User, blank=True, null=True, on_delete=models.CASCADE,
+    id_user = models.ForeignKey(User, blank=True, null=False, on_delete=models.CASCADE,
                                 db_column='id_user', related_name='like_user')
-    id_card = models.ForeignKey(CardPost, blank=True, null=True, on_delete=models.CASCADE,
+    id_card = models.ForeignKey(CardPost, blank=True, null=False, on_delete=models.CASCADE,
                                 db_column='id_card', related_name='like_card')

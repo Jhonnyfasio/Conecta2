@@ -45,7 +45,7 @@ class UserView(View):
 
 class LikeView(View):
     def get(self, request):
-        cards = list(Like.objects.select_related('CardPost'))
+        cards = list(Like.objects.select_related('CardPost').values())
         if len(cards) > 0:
             data = {'message': 'Success', 'cards': cards}
         else:
