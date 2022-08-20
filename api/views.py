@@ -45,12 +45,15 @@ class UserView(View):
 
 class LikeView(View):
     def get(self, request, id_user):
-
+        cardsPost = set()
         cards = list(Like.objects.filter(id_user=id_user,
-                     status=True).values('id_card.content', 'status'))
+                     status=True).values('id_card', 'status'))
 
-        if len(cards) > 0:
-            data = {'message': 'Success', 'cards': cards}
+        for c in cards:
+            cardsPost.add({c.id_card.content, c.status})
+
+        if len(cardsPost) > 0:
+            data = {'message': 'Success', 'cards': cardsPost}
         else:
             data = {'message': 'Cards not found...'}
         return JsonResponse(data)
