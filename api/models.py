@@ -24,4 +24,4 @@ class Like(models.Model):
     id_user = models.ForeignKey(User, blank=True, null=True, on_delete=models.CASCADE,
                                 db_column='id_user', related_name='like_user')
     id_card = models.ForeignKey(CardPost, blank=True, null=True, on_delete=models.CASCADE,
-                                db_column='id_card', related_name='card_user')
+                                db_column='id_card', related_name='like_card')
