@@ -46,10 +46,10 @@ class UserView(View):
 class LikeView(View):
     def get(self, request, id_user):
         cards = list(Like.objects.filter(id_user=id_user,
-                     status=True).select_related('id_card').values())
+                     status=True).select_related('id_card.content').values())
 
         if len(cards) > 0:
-            data = {'message': 'Success', 'cards': cards.id_card_id.content}
+            data = {'message': 'Success', 'cards': cards}
         else:
             data = {'message': 'Cards not found...'}
         return JsonResponse(data)
