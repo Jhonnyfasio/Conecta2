@@ -14,9 +14,6 @@ class CardPostView(View):
             data = {'message': 'Cards not found...'}
         return JsonResponse(data)
 
-    def get(self, request, id_user):
-        pass
-
     def post(self, request):
         pass
 
