@@ -14,6 +14,9 @@ class CardPostView(View):
             data = {'message': 'Cards not found...'}
         return JsonResponse(data)
 
+    def get(self, request, id_user):
+        pass
+
     def post(self, request):
         pass
 
@@ -45,11 +48,11 @@ class UserView(View):
 
 class LikeView(View):
     def get(self, request):
-        likes = list(Like.objects.values())
-        if len(likes) > 0:
-            data = {'message': 'Success', 'likes': likes}
+        cards = Like.objects.select_related('id_card')
+        if len(cards) > 0:
+            data = {'message': 'Success', 'cards': cards}
         else:
-            data = {'message': 'likes not found...'}
+            data = {'message': 'Cards not found...'}
         return JsonResponse(data)
 
     def post(self, request):
