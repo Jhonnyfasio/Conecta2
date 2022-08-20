@@ -47,7 +47,7 @@ class LikeView(View):
     def get(self, request, id_user):
 
         cards = list(Like.objects.filter(id_user=id_user,
-                     status=True).values('id_card', 'status'))
+                     status=True).values('id_card.content', 'status'))
 
         if len(cards) > 0:
             data = {'message': 'Success', 'cards': cards}
