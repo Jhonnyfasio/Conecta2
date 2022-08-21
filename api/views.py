@@ -17,12 +17,7 @@ class CardPostView(View):
 
     def get(self, request, id_user):
 
-        cards = list(CardPost.objects.filter(like__status=True).values())
-
-        if len(cards) > 0:
-            data = {'message': 'Success', 'cards': cards}
-        else:
-            data = {'message': 'Cards not found...'}
+        data = {'message': 'Cards not found...'}
         return JsonResponse(data)
 
     def post(self, request):
