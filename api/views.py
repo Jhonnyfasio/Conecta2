@@ -17,7 +17,7 @@ class CardPostView(View):
 
     def get(self, request, id_user):
 
-        cards = list(CardPost.objects.filter(like__status=True).values())
+        cards = list(CardPost.objects.filter(api_like__status=True).values())
 
         if len(cards) > 0:
             data = {'message': 'Success', 'cards': cards}
@@ -30,7 +30,7 @@ class CardPostView(View):
         user = User.objects.get(id=card['id_user'])
         category = Category.objects.get(id=card['id_category'])
         CardPost.objects.create(
-            content=card['content'], user=user, category=category)
+            content=card['content'], user_id=user, category_id=category)
         data = {'message': "Success"}
 
         return JsonResponse(data)
@@ -55,7 +55,7 @@ class UserView(View):
         user = json.loads(request.body)
 
         User.objects.create(
-            name=user['name'], id_english_level=user['id_english_level'])
+            name=user['name'], english_level_id=user['id_english_level'])
         data = {'message': "Success"}
 
         return JsonResponse(data)
@@ -69,7 +69,7 @@ class UserView(View):
 
 class LikeView(View):
     def get(self, request, id_user):
-        cards = list(Like.objects.filter(user=id_user,
+        cards = list(Like.objects.filter(user_id=id_user,
                      status=True).values())
 
         if len(cards) > 0:
