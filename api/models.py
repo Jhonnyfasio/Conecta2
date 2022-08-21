@@ -31,3 +31,11 @@ class Like(models.Model):
                              related_name='like_user')
     card = models.ForeignKey(CardPost, blank=True, null=True, on_delete=models.CASCADE,
                              related_name='like_card')
+
+
+class Save(models.Model):
+    status = models.BooleanField()
+    user = models.ForeignKey(User, blank=True, null=True, on_delete=models.CASCADE,
+                             related_name='save_user')
+    card = models.ForeignKey(CardPost, blank=True, null=True, on_delete=models.CASCADE,
+                             related_name='save_card')

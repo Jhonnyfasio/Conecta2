@@ -4,7 +4,7 @@ from django.db.models import Count, Q
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
-from .models import CardPost, Category, User, Like
+from .models import CardPost, Category, User, Like, Save
 import json
 
 # Create your views here.
@@ -18,8 +18,9 @@ class CardPostView(View):
     def get(self, request, id_user):
         user = User.objects.get(id=id_user)
         cards = list(CardPost.objects.annotate(isLike=Count(
-            'like_card', filter=Q(like_card__status=True, like_card__user_id=user))).annotate(countLike=Count(
-                'like_card', filter=Q(like_card__status=True))).values())
+            'like_card', filter=Q(like_card__status=True, like_card__user_id=user))).annotate(isSave=Count(
+                'save_card', filter=Q(save_card__status=True, save_card__user_id=user))).annotate(countLike=Count(
+                    'like_card', filter=Q(like_card__status=True))).values())
 
         if len(cards) > 0:
             data = {'message': 'Success', 'cards': cards}
