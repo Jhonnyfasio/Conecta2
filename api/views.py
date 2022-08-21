@@ -14,7 +14,7 @@ class CardPostView(View):
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
 
-    def get(self, request):
+    def get(self, request, id_user):
         cards = list(CardPost.objects.raw(
             'SELECT id, content FROM api_cardpost'))
         if len(cards) > 0:
