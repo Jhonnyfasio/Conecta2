@@ -1,5 +1,6 @@
 from unicodedata import category
 from django.http.response import JsonResponse
+from django.db.models import Count
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
@@ -16,7 +17,8 @@ class CardPostView(View):
 
     def get(self, request, id_user):
 
-        cards = list(CardPost.objects.values('content'))
+        cards = list(CardPost.objects.annotate(
+            likes=Count('likes__id_card')).values('content'))
 
         if len(cards) > 0:
             data = {'message': 'Success', 'cards': cards}
