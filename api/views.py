@@ -15,7 +15,7 @@ class CardPostView(View):
         return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, id_user):
-        cards = list(CardPost.objects.values())
+        cards = CardPost.objects
         cardstest = set()
         for c in cards:
             cardstest.add('HOLA')
