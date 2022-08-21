@@ -1,5 +1,7 @@
 from django.http.response import JsonResponse
+from django.utils.decorators import method_decorator
 from django.views import View
+from django.views.decorators.csrf import csrf_exempt
 from .models import CardPost, User, Like
 import json
 
@@ -7,6 +9,10 @@ import json
 
 
 class CardPostView(View):
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
     def get(self, request):
         cards = list(CardPost.objects.values())
         if len(cards) > 0:
