@@ -15,8 +15,9 @@ class CardPostView(View):
         return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, id_user):
-        cards = 'd'
-        return cards
+        data = {'message': "Success"}
+
+        return JsonResponse(data)
 
     def post(self, request):
         card = json.loads(request.body)
