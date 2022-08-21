@@ -24,9 +24,7 @@ class CardPostView(View):
     def post(self, request):
         card = json.loads(request.body)
 
-        CardPost.objects.create(
-            content=card['content'], id_user=card['id_user'], id_category=card['id_category'])
-        data = {'message': "Success"}
+        data = {'message': "Success", 'card': card}
 
         return JsonResponse(data)
 
