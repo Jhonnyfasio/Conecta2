@@ -15,11 +15,12 @@ class CardPostView(View):
         return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, id_user):
+        cardx = list()
         cards = list(CardPost.objects.all().values())
         for card in cards:
-            cards.like = True
+            cardx.append(card)
         if len(cards) > 0:
-            data = {'message': 'Success', 'cards': cards}
+            data = {'message': 'Success', 'cards': cardx}
         else:
             data = {'message': 'Cards not found...'}
         return JsonResponse(data)
