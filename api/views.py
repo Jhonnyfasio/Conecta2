@@ -19,7 +19,7 @@ class CardPostView(View):
         user = User.objects.get(id=id_user)
         cards = list(CardPost.objects.annotate(isLike=Count(
             'like_card', filter=Q(like_card__status=True, like_card__user_id=user))).annotate(countLike=Count(
-                'like_card', filter=Q(like_card__status=True, like_card__card_id=id))).values())
+                'like_card', filter=Q(like_card__status=True))).values())
 
         if len(cards) > 0:
             data = {'message': 'Success', 'cards': cards}
