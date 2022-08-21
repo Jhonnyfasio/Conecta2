@@ -16,11 +16,7 @@ class CardPostView(View):
 
     def get(self, request, id_user):
         cards = CardPost.objects.raw('SELECT id, content FROM api_cardpost')
-        if len(cards) > 0:
-            data = {'message': 'Success', 'cards': cards}
-        else:
-            data = {'message': 'Cards not found...'}
-        return JsonResponse(data)
+        return cards
 
     def post(self, request):
         card = json.loads(request.body)
