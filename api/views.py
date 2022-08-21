@@ -1,8 +1,9 @@
+from unicodedata import category
 from django.http.response import JsonResponse
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
-from .models import CardPost, User, Like
+from .models import CardPost, Category, User, Like
 import json
 
 # Create your views here.
@@ -23,8 +24,11 @@ class CardPostView(View):
 
     def post(self, request):
         card = json.loads(request.body)
-
-        data = {'message': "Success", 'card': card}
+        user = User.objects.get(id=card['id_user'])
+        category = Category.objects.get(id=card['id_category'])
+        CardPost.objects.create(
+            content=card['content'], id_user=user, id_category=category)
+        data = {'message': "Success"}
 
         return JsonResponse(data)
 
