@@ -15,8 +15,11 @@ class CardPostView(View):
         return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, id_user):
-        data = {'message': "Success"}
-
+        cards = list(CardPost.objects.all())
+        if len(cards) > 0:
+            data = {'message': 'Success', 'cards': cards}
+        else:
+            data = {'message': 'Cards not found...'}
         return JsonResponse(data)
 
     def post(self, request):
