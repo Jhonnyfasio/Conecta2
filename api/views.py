@@ -19,7 +19,7 @@ class CardPostView(View):
 
         cards = list(CardPost.objects.all().values())
         for card in cards:
-            cardx.append(card.content)
+            cardx.append(card.values('content'))
         if len(cards) > 0:
             data = {'message': 'Success', 'cards': cardx}
         else:
