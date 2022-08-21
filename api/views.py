@@ -17,8 +17,8 @@ class CardPostView(View):
 
     def get(self, request, id_user):
 
-        cards = list(CardPost.objects.annotate(
-            likes=Count('likes__id_card')).values('content'))
+        cards = list(CardPost.objects.filter(id_user=id_user).values(
+            'like__status', 'content').annotate(duplicated=Count('like__status')).filter(duplicated__gt=1))
 
         if len(cards) > 0:
             data = {'message': 'Success', 'cards': cards}
