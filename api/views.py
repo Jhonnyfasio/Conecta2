@@ -98,6 +98,8 @@ class LikeView(View):
 
         if len(like) == 1:
             newLike = Like.objects.get(id=like[0])
+            newLike.status = False
+            newLike.save()
             data = {'message': 'LIKE', 'like': like[0]}
         else:
             data = {'message': 'NO EXISTE'}
