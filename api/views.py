@@ -96,7 +96,7 @@ class LikeView(View):
         like = Like.objects.filter(card_id=card, user_id=user).values()
 
         if len(like) == 1:
-            data = {'message': 'LIKE', 'like': like[0]}
+            data = {'message': 'LIKE', 'like': like[0].id}
         else:
             data = {'message': 'NO EXISTE'}
         return JsonResponse(data)
