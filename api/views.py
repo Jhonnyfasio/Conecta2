@@ -93,10 +93,11 @@ class LikeView(View):
         user = User.objects.get(id=dataLike['id_user'])
         card = CardPost.objects.get(id=dataLike['id_card'])
 
-        like = Like.objects.filter(card_id=card, user_id=user).values()
+        like = Like.objects.filter(
+            card_id=card, user_id=user).values_list('id', flat=True)
 
         if len(like) == 1:
-            newLike = Like.objects.get(id=like[0].id)
+            newLike = Like.objects.get(id=like[0])
             data = {'message': 'LIKE', 'like': newLike}
         else:
             data = {'message': 'NO EXISTE'}
