@@ -94,10 +94,11 @@ class LikeView(View):
         card = CardPost.objects.get(id=dataLike['id_card'])
 
         like = Like.objects.filter(
-            card_id=card, user_id=user).values()
+            card_id=card, user_id=user).values('id')
 
         if like.exists():
-            if like.status:
+            newLike = Like.objects.get(id=like.id)
+            if newLike.status:
                 data = {'message': 'LIKE'}
             else:
                 data = {'message': 'NOLIKE'}
