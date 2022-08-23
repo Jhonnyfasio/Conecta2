@@ -46,6 +46,10 @@ class CardPostView(View):
 
 
 class UserView(View):
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
     def get(self, request):
         users = list(User.objects.values())
         if len(users) > 0:
@@ -71,6 +75,10 @@ class UserView(View):
 
 
 class LikeView(View):
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
     def get(self, request, id_user):
         cards = list(Like.objects.filter(user_id=id_user,
                                          status=True).values())
