@@ -82,7 +82,6 @@ class LikeView(View):
     def get(self, request, id_user):
         cards = list(Like.objects.filter(user_id=id_user,
                                          status=True).values())
-
         if len(cards) > 0:
             data = {'message': 'Success', 'cards': cards}
         else:
@@ -94,8 +93,8 @@ class LikeView(View):
         user = User.objects.get(id=dataLike['id_user'])
         card = CardPost.objects.get(id=dataLike['id_card'])
 
-        like = Like.objects.get(
-            card_id=card, user_id=user, status=True)
+        like = Like.objects.filter(
+            card_id=card, user_id=user, status=True).values()
 
         if like.exists():
             data = {'message': 'Like Existe'}
