@@ -97,7 +97,7 @@ class LikeView(View):
             card_id=card, user_id=user).values_list('id', flat=True)
 
         if len(like) == 1:
-            newLike = Like.objects.get(id=like[0])
+            newLike = Like.objects.get(id=like)
             data = {'message': 'LIKE', 'like': like}
         else:
             data = {'message': 'NO EXISTE'}
