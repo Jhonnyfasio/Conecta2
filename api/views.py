@@ -82,7 +82,18 @@ class LikeView(View):
         return JsonResponse(data)
 
     def post(self, request):
-        pass
+        dataLike = json.loads(request.body)
+        user = User.objects.get(id=dataLike['id_user'])
+        card = CardPost.objects.get(id=dataLike['id_card'])
+
+        like = Like.objects.get(
+            card_id=card, user_id=user, status=True)
+
+        if like.exists():
+            data = {'message': 'Like Existe'}
+        else:
+            data = {'message': 'Like No Existe'}
+        return JsonResponse(data)
 
     def put(self, request):
         pass
