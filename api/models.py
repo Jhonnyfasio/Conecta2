@@ -9,6 +9,7 @@ class EnglishLevel(models.Model):
 
 class User(models.Model):
     name = models.CharField(max_length=1000)
+    email = models.EmailField(default='pedromorales@gmail.com')
     english_level = models.ForeignKey(EnglishLevel, blank=True, null=True, on_delete=models.CASCADE,
                                       related_name='user_english_level')
 
