@@ -91,9 +91,7 @@ class LikeView(View):
         return JsonResponse(data)
 
     def post(self, request):
-
         data = {'message': "Success Create"}
-
         return JsonResponse(data)
 
     def put(self, request):
