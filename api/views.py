@@ -80,10 +80,8 @@ class LikeView(View):
         return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, id_user):
-        user = User.objects.get(id=id_user)
-        cards = list(CardPost.objects.exclude(user_id=user).annotate(isLike=Count(
-            'like_card', filter=Q(like_card__status=True, like_card__user_id=user))).filter(isLike = 1).values('id', 'user_id__name', 'content', 'category_id', 'user_id', 'isLike'))
-
+        cards = list(Like.objects.filter(user_id=id_user,
+                                         status=True).values())
         if len(cards) > 0:
             data = {'message': 'Success', 'cards': cards}
         else:
@@ -109,3 +107,9 @@ class LikeView(View):
             data = {'message': "Success Create"}
 
         return JsonResponse(data)
+
+    def put(self, request):
+        pass
+
+    def delete(self, request):
+        pass
