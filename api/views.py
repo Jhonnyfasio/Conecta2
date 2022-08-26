@@ -98,12 +98,12 @@ class LikeView(View):
 
         if len(like) == 1:
             newLike = Like.objects.get(id=like[0])
-            newLike.status = dataLike['status']
+            
             newLike.save()
             data = {'message': 'Success Update'}
         else:
             Like.objects.create(
-                status=dataLike['status'], card_id=card, user_id=user)
+                status=True, card_id=card, user_id=user)
             data = {'message': "Success Create"}
 
         return JsonResponse(data)
