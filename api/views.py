@@ -17,7 +17,7 @@ class CardPostView(View):
 
     def get(self, request, id_user):
         user = User.objects.get(id=id_user)
-        cards = list(CardPost.objects.annotate(isLike=Count(
+        cards = list(CardPost.objects.exclude(user_id=user).annotate(isLike=Count(
             'like_card', filter=Q(like_card__status=True, like_card__user_id=user))).annotate(isSave=Count(
                 'save_card', filter=Q(save_card__status=True, save_card__user_id=user))).annotate(countLike=Count(
                     'like_card', filter=Q(like_card__status=True))).values('id', 'user_id__name', 'content', 'category_id', 'user_id', 'isLike', 'isSave', 'countLike'))
@@ -104,6 +104,48 @@ class LikeView(View):
             data = {'message': 'Success Update'}
         else:
             Like.objects.create(
+                status=dataLike['status'], card=card, user=user)
+            data = {'message': "Success Create"}
+
+        return JsonResponse(data)
+
+    def put(self, request):
+        pass
+
+    def delete(self, request):
+        pass
+
+
+class SaveView(View):
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, id_user):
+        user = User.objects.get(id=id_user)
+        cards = list(CardPost.objects.exclude(user_id=user).annotate(isSave=Count(
+            'save_card', filter=Q(save_card__status=True, save_card__user_id=user))).filter(isSave=1).values('id', 'user_id__name', 'content', 'category_id', 'user_id', 'isSave'))
+
+        if len(cards) > 0:
+            data = {'message': 'Success', 'cards': cards}
+        else:
+            data = {'message': 'Cards not found...'}
+        return JsonResponse(data)
+
+    def post(self, request):
+        dataLike = json.loads(request.body)
+        user = User.objects.get(id=dataLike['id_user'])
+        card = CardPost.objects.get(id=dataLike['id_card'])
+        save = Save.objects.filter(
+            card_id=card, user_id=user).values_list('id', flat=True)
+
+        if len(save) == 1:
+            newSave = Save.objects.get(id=save[0])
+            newSave.status = dataLike['status']
+            newSave.save()
+            data = {'message': 'Success Update'}
+        else:
+            Save.objects.create(
                 status=dataLike['status'], card=card, user=user)
             data = {'message': "Success Create"}
 
