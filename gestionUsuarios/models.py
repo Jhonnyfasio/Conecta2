@@ -34,15 +34,6 @@ class Message(models.Model):
     def __str__(self):
         return "%s" %(self.message)
 
-class Like(models.Model):
-    idLike = models.IntegerField()
-    idUser = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
-    score = models.SmallIntegerField()
-    created_at = models.DateTimeField()
-
-    def __str__(self):
-        return "%s" %(self.score)
-
 class Card(models.Model):
     idCard = models.IntegerField()
     idUser = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
@@ -54,3 +45,14 @@ class Card(models.Model):
 
     def __str__(self):
         return "%s" %(self.idCard)
+
+class Like(models.Model):
+    idLike = models.IntegerField()
+    idUser = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    idCard = models.ForeignKey(Card, on_delete=models.CASCADE, null=True)
+    #score = models.SmallIntegerField()
+    score = models.FloatField()
+    created_at = models.DateTimeField()
+
+    def __str__(self):
+        return "%s" %(self.score)
