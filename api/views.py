@@ -97,7 +97,7 @@ class LikeView(View):
             card_id=card, user_id=user).values_list('id', flat=True)
         newLike = Like.objects.get(id=like[0])
 
-        if newLike.exists():
+        if True:
             data = {'message': 'Success Update'}
         else:
             data = {'message': "Success Create"}
