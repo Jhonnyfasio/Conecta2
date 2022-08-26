@@ -81,10 +81,8 @@ class LikeView(View):
 
     def get(self, request, id_user):
         user = User.objects.get(id=id_user)
-        cards = list(CardPost.objects.annotate(isLike=Count(
-            'like_card', filter=Q(like_card__status=True, like_card__user_id=user))).annotate(isSave=Count(
-                'save_card', filter=Q(save_card__status=True, save_card__user_id=user))).annotate(countLike=Count(
-                    'like_card', filter=Q(like_card__status=True))).values('id', 'user_id__name', 'content', 'category_id', 'user_id', 'isLike', 'isSave', 'countLike'))
+        cards = list(CardPost.objects.exclude(user_id=user).annotate(isLike=Count(
+            'like_card', filter=Q(like_card__status=True, like_card__user_id=user))).filter(isLike = 1).values('id', 'user_id__name', 'content', 'category_id', 'user_id', 'isLike'))
 
         if len(cards) > 0:
             data = {'message': 'Success', 'cards': cards}
