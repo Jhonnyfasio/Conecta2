@@ -91,16 +91,15 @@ class LikeView(View):
         return JsonResponse(data)
 
     def post(self, request):
-        dataLike = json.loads(request.body)
-        user = User.objects.get(id=dataLike['id_user'])
-        card = CardPost.objects.get(id=dataLike['id_card'])
-        like = Like.objects.filter(
-            card_id=card, user_id=user).values_list('id', flat=True)
+        card = json.loads(request.body)
+        user = User.objects.get(id=card['id_user'])
+        cards = list(CardPost.objects.exclude(user_id=user).annotate(isLike=Count(
+            'like_card', filter=Q(like_card__status=True, like_card__user_id=user))).filter(isLike=1).values('id', 'user_id__name', 'content', 'category_id', 'user_id', 'isLike'))
 
-        if len(like) == 1:
-            data = {'message': 'Success Update'}
+        if len(cards) > 0:
+            data = {'message': 'Success', 'cards': cards}
         else:
-            data = {'message': "Success Create"}
+            data = {'message': 'Cards not found...'}
         return JsonResponse(data)
 
     def put(self, request):
