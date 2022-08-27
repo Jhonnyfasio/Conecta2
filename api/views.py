@@ -23,7 +23,7 @@ class CardPostView(View):
                     'like_card', filter=Q(like_card__status=True))).values('id', 'user_id__name', 'content', 'category_id', 'user_id', 'isLike', 'isSave', 'countLike'))
 
         if len(cards) > 0:
-            data = {'message': 'Success', 'cards': cards}
+            data = {cards}
         else:
             data = {'message': 'Cards not found...'}
         return JsonResponse(data)
@@ -127,7 +127,7 @@ class SaveView(View):
             'save_card', filter=Q(save_card__status=True, save_card__user_id=user))).filter(isSave=1).values('id', 'user_id__name', 'content', 'category_id', 'user_id', 'isSave'))
 
         if len(cards) > 0:
-            data = {'message': 'Success', 'cards': cards}
+            data = {cards}
         else:
             data = {'message': 'Cards not found...'}
         return JsonResponse(data)
