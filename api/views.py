@@ -23,7 +23,7 @@ class CardPostView(View):
                     'like_card', filter=Q(like_card__status=True))).values('id', 'user_id__name', 'content', 'category_id', 'user_id', 'isLike', 'isSave', 'countLike'))
 
         if len(cards) > 0:
-            data = {cards}
+            data = {'cards': cards}
         else:
             data = {'message': 'Cards not found...'}
         return JsonResponse(data)
