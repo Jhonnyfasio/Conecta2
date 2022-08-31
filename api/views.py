@@ -90,6 +90,18 @@ class LikeView(View):
             data = {'message': 'Cards not found...'}
         return JsonResponse(data)
 
+    def get(self, request, id_user, id_category):
+        user = User.objects.get(id=id_user)
+        category = Category.objects.get(id=id_category)
+        cards = list(CardPost.objects.exclude(user_id=user).filter(category_id=category).annotate(isLike=Count(
+            'like_card', filter=Q(like_card__status=True, like_card__user_id=user))).filter(isLike=1).values('id', 'user_id__name', 'content', 'category_id', 'user_id', 'isLike'))
+
+        if len(cards) > 0:
+            data = {'cards': cards}
+        else:
+            data = {'message': 'Cards not found...'}
+        return JsonResponse(data)
+
     def post(self, request):
         dataLike = json.loads(request.body)
         user = User.objects.get(id=dataLike['id_user'])
@@ -121,17 +133,6 @@ class SaveView(View):
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
 
-    def get(self, request, id_user):
-        user = User.objects.get(id=id_user)
-        cards = list(CardPost.objects.exclude(user_id=user).annotate(isSave=Count(
-            'save_card', filter=Q(save_card__status=True, save_card__user_id=user))).filter(isSave=1).values('id', 'user_id__name', 'content', 'category_id', 'user_id', 'isSave'))
-
-        if len(cards) > 0:
-            data = {'message': 'Success', 'cards': cards}
-        else:
-            data = {'message': 'Cards not found...'}
-        return JsonResponse(data)
-
     def get(self, request, id_user, id_category):
         user = User.objects.get(id=id_user)
         category = Category.objects.get(id=id_category)
@@ -139,7 +140,7 @@ class SaveView(View):
             'save_card', filter=Q(save_card__status=True, save_card__user_id=user))).filter(isSave=1).values('id', 'user_id__name', 'content', 'category_id', 'user_id', 'isSave'))
 
         if len(cards) > 0:
-            data = {'message': 'Success', 'cards': cards}
+            data = {'cards': cards}
         else:
             data = {'message': 'Cards not found...'}
         return JsonResponse(data)
