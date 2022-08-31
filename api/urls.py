@@ -13,7 +13,7 @@ urlpatterns = [
     path('saves/', SaveView.as_view(), name='post_saves'),
     path('create_card/<int:id_user>/<int:id_category>',
          CardsUserView.as_view(), name='get_cards_create_category'),
-    path('all_create_card/<int:id_user>/<int:id_category>',
+    path('all_create_card/<int:id_user>',
          AllCardsUserView.as_view(), name='get_all_cards_create'),
 
 
