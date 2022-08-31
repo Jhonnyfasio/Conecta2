@@ -97,9 +97,9 @@ class LikeView(View):
             'like_card', filter=Q(like_card__status=True, like_card__user_id=user))).filter(isLike=1).values('id', 'user_id__name', 'content', 'category_id', 'user_id', 'isLike'))
 
         if len(cards) > 0:
-            data = {'cards': cards}
+            data = {'message': 'SUCCESS', 'cards': cards}
         else:
-            data = {'message': 'Cards not found...'}
+            data = {'message': 'NO FOUND'}
         return JsonResponse(data)
 
     def post(self, request):
@@ -140,9 +140,9 @@ class SaveView(View):
             'save_card', filter=Q(save_card__status=True, save_card__user_id=user))).filter(isSave=1).values('id', 'user_id__name', 'content', 'category_id', 'user_id', 'isSave'))
 
         if len(cards) > 0:
-            data = {'cards': cards}
+            data = {'message': 'SUCCESS', 'cards': cards}
         else:
-            data = {'message': 'Cards not found...'}
+            data = {'message': 'NO FOUND'}
         return JsonResponse(data)
 
     def post(self, request):
