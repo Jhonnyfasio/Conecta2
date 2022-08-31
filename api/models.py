@@ -12,6 +12,8 @@ class User(models.Model):
     email = models.EmailField(default='pedromorales@gmail.com')
     english_level = models.ForeignKey(EnglishLevel, blank=True, null=True, on_delete=models.CASCADE,
                                       related_name='user_english_level')
+    id_firebase = models.CharField(max_length=1000)
+    image = models.CharField(max_length=5000)
 
 
 class Category(models.Model):
