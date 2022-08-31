@@ -26,6 +26,7 @@ class SuggestionView(View):
         #data = {'message': 'Success', 'cards': 'Cards'}
         #return JsonResponse(data)
         user = User.objects.get(id=id_user)
+        #dataframe = Suggestion(id_user)
         cards = list(User.objects.values())
 
         if len(cards) > 0:
@@ -51,46 +52,39 @@ class SuggestionView(View):
         pass
 
 def Suggestion(request, idUser):
-    # -*- coding: utf-8 -*-
-    """
-    Spyder Editor
-
-    This is a temporary script file.
-    """
-
-
-
     #!wget -O moviedataset.zip https://s3-api.us-geo.objectstorage.softlayer.net/cf-courses-data/CognitiveClass/ML0101ENv3/labs/moviedataset.zip
     print('unziping ...')
     #!unzip -o -j moviedataset.zip
 
     #Guardando la información de la película dentro de un dataframe de panda
-    movies_df = pd.read_csv('movies.csv')
+    #movies_df = pd.read_csv('movies.csv')
+    cards = list(Card.objects.values('idCard','idUser'))
 
     #Guardando información del usuario dentro de un dataframe de panda
-    ratings_df = pd.read_csv('ratings.csv')
+    #ratings_df = pd.read_csv('ratings.csv')
+    like = cards = list(Like.objects.values('idLike','idUser','idCard','score'))
 
 
     #Utilizar expresiones regulares para encontrar un año guardado entre paréntesis
     #Especificamos los paréntesis de forma tal de que no haya problemas con las películas que tiene el año en sus títulos
     #movies_df['year'] = movies_df.title.str.extract('(<img alt="\d\d\d\d" title="Rendered by QuickLaTeX.com" height="2" width="3" style="vertical-align: -4px;" data-src="https://www.statdeveloper.com/wp-content/ql-cache/quicklatex.com-6bed55770ce78fa33f73530474cdaed1_l3.png" class="ql-img-inline-formula quicklatex-auto-format lazyload td-animation-stack-type0-1" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="><noscript><img   alt="\d\d\d\d" title="Rendered by QuickLaTeX.com" height="2" width="3" style="vertical-align: -4px;" data-src="https://www.statdeveloper.com/wp-content/ql-cache/quicklatex.com-6bed55770ce78fa33f73530474cdaed1_l3.png" class="ql-img-inline-formula quicklatex-auto-format lazyload" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" /><noscript><img src="https://www.statdeveloper.com/wp-content/ql-cache/quicklatex.com-6bed55770ce78fa33f73530474cdaed1_l3.png" class="ql-img-inline-formula quicklatex-auto-format" alt="\d\d\d\d" title="Rendered by QuickLaTeX.com" height="2" width="3" style="vertical-align: -4px;"/></noscript>)',expand=False)
-    movies_df['year'] = movies_df.title.str.extract(r'(\(\d+\))$', expand=False)
+    #movies_df['year'] = movies_df.title.str.extract(r'(\(\d+\))$', expand=False)
 
     #Sacando los paréntesis
     #movies_df['year'] = movies_df.year.str.extract('(\d\d\d\d)',expand=False)
-    movies_df['year'] = movies_df.year.str.extract(r'(\d+)', expand=False)
+    #movies_df['year'] = movies_df.year.str.extract(r'(\d+)', expand=False)
 
     #Sacando los años de la columna 'title'
     #movies_df['title'] = movies_df.title.str.replace('(<img alt="\d\d\d\d" title="Rendered by QuickLaTeX.com" height="2" width="3" style="vertical-align: -4px;" data-src="https://www.statdeveloper.com/wp-content/ql-cache/quicklatex.com-6bed55770ce78fa33f73530474cdaed1_l3.png" class="ql-img-inline-formula quicklatex-auto-format lazyload td-animation-stack-type0-1" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="><noscript><img   alt="\d\d\d\d" title="Rendered by QuickLaTeX.com" height="2" width="3" style="vertical-align: -4px;" data-src="https://www.statdeveloper.com/wp-content/ql-cache/quicklatex.com-6bed55770ce78fa33f73530474cdaed1_l3.png" class="ql-img-inline-formula quicklatex-auto-format lazyload" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" /><noscript><img src="https://www.statdeveloper.com/wp-content/ql-cache/quicklatex.com-6bed55770ce78fa33f73530474cdaed1_l3.png" class="ql-img-inline-formula quicklatex-auto-format" alt="\d\d\d\d" title="Rendered by QuickLaTeX.com" height="2" width="3" style="vertical-align: -4px;"/></noscript>)', '')
-    movies_df.title = movies_df.title.str.replace(r'(\(\d+\))$','')
+    #movies_df.title = movies_df.title.str.replace(r'(\(\d+\))$','')
 
     #Aplicando la función strip para sacar los espacios finales que pudiera haber
-    movies_df['title'] = movies_df['title'].apply(lambda x: x.strip())
+    #movies_df['title'] = movies_df['title'].apply(lambda x: x.strip())
 
     #Eliminando la columna géneros
-    movies_df = movies_df.drop('genres', 1)
+    #movies_df = movies_df.drop('genres', 1)
 
-    ratings_df = ratings_df.drop('timestamp', 1)
+    #ratings_df = ratings_df.drop('timestamp', 1)
 
     userInput = [
                 {'title':'Breakfast Club, The', 'rating':5},
