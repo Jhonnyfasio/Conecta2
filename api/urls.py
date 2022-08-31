@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import CardPostView, LikeView, SaveView, CardsUserView
+from .views import CardPostView, LikeView, SaveView, CardsUserView, AllCardsUserView
 
 
 urlpatterns = [
@@ -13,6 +13,8 @@ urlpatterns = [
     path('saves/', SaveView.as_view(), name='post_saves'),
     path('create_card/<int:id_user>/<int:id_category>',
          CardsUserView.as_view(), name='get_cards_create_category'),
+    path('all_create_card/<int:id_user>/<int:id_category>',
+         AllCardsUserView.as_view(), name='get_all_cards_create'),
 
 
 ]

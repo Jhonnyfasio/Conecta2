@@ -164,8 +164,21 @@ class CardsUserView(View):
     def get(self, request, id_user, id_category):
         user = User.objects.get(id=id_user)
         category = Category.objects.get(id=id_category)
-        cards = list(CardPost.objects.filter(user_id=user).filter(category_id=category).annotate(isSave=Count(
-            'save_card', filter=Q(save_card__status=True, save_card__user_id=user))).filter(isSave=1).values('id', 'user_id__name', 'content', 'category_id', 'user_id', 'isSave'))
+        cards = list(CardPost.objects.filter(user_id=user).filter(
+            category_id=category).values('id', 'content', 'category_id', 'user_id'))
+
+        if len(cards) > 0:
+            data = {'message': 'SUCCESS', 'cards': cards}
+        else:
+            data = {'message': 'NO FOUND'}
+        return JsonResponse(data)
+
+
+class AllCardsUserView(View):
+    def get(self, request, id_user):
+        user = User.objects.get(id=id_user)
+        cards = list(CardPost.objects.filter(user_id=user).values(
+            'id', 'content', 'category_id', 'user_id'))
 
         if len(cards) > 0:
             data = {'message': 'SUCCESS', 'cards': cards}
