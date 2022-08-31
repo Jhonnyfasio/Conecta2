@@ -1,10 +1,11 @@
 from django.urls import path
-from .views import CardPostView, LikeView, SaveView, CardsUserView, AllCardsUserView
+from .views import CardPostView, LikeView, SaveView, CardsUserView, AllCardsUserView, UserView
 
 
 urlpatterns = [
     path('cards/<int:id_user>', CardPostView.as_view(), name='get_cards'),
     path('cards/', CardPostView.as_view(), name='post_cards'),
+    path('users/', UserView.as_view(), name='get_cards'),
     path('likes/<int:id_user>/<int:id_category>',
          LikeView.as_view(), name='get_likes'),
     path('likes/', LikeView.as_view(), name='post_likes'),
