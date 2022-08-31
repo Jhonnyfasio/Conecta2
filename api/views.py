@@ -127,7 +127,22 @@ class SaveView(View):
             'save_card', filter=Q(save_card__status=True, save_card__user_id=user))).filter(isSave=1).values('id', 'user_id__name', 'content', 'category_id', 'user_id', 'isSave'))
 
         if len(cards) > 0:
-            data = {cards}
+            data = {'message': 'Success', 'cards': cards}
+        else:
+            data = {'message': 'Cards not found...'}
+        return JsonResponse(data)
+
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, id_user, id_category):
+        user = User.objects.get(id=id_user)
+        category = Category.objects.get(id=id_category)
+        cards = list(CardPost.objects.exclude(user_id=user).filter(category_id=category).annotate(isSave=Count(
+            'save_card', filter=Q(save_card__status=True, save_card__user_id=user))).filter(isSave=1).values('id', 'user_id__name', 'content', 'category_id', 'user_id', 'isSave'))
+
+        if len(cards) > 0:
+            data = {'message': 'Success', 'cards': cards}
         else:
             data = {'message': 'Cards not found...'}
         return JsonResponse(data)
