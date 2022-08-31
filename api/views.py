@@ -132,9 +132,6 @@ class SaveView(View):
             data = {'message': 'Cards not found...'}
         return JsonResponse(data)
 
-    def dispatch(self, request, *args, **kwargs):
-        return super().dispatch(request, *args, **kwargs)
-
     def get(self, request, id_user, id_category):
         user = User.objects.get(id=id_user)
         category = Category.objects.get(id=id_category)
