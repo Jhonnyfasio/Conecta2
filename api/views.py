@@ -4,7 +4,7 @@ from django.db.models import Count, Q
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
-from .models import CardPost, Category, FriendRequest, User, Like, Save
+from .models import CardPost, Category, FriendRequest, StatusFriendRequest, User, Like, Save
 import json
 
 # Create your views here.
@@ -50,13 +50,14 @@ class UserView(View):
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
 
-    def get(self, request, id_user):
+    def get(self, request, id_user, id_user_stalker):
         cards = list()
         newUser = list()
         friends = list()
         user = User.objects.get(id=id_user)
+        status = StatusFriendRequest.objects.get(id=3)
         friends = list(FriendRequest.objects.filter(
-            user_s_id=user).values('user_r_id__id', 'user_r_id__name', 'user_r_id__image'))
+            user_s_id=user).filter(status_id=status).values('user_r_id__id', 'user_r_id__name', 'user_r_id__image'))
         cards = list(CardPost.objects.filter(
             user_id=user).values('id', 'content', 'category_id'))
         newUser = list(User.objects.filter(pk=id_user).values())
