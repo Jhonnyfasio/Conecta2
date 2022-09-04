@@ -55,8 +55,8 @@ class UserView(View):
         newUser = list()
         friends = list()
         user = User.objects.get(id=id_user)
-        friends = list(User.objects.filter(
-            user_sends__id=id_user).values('user_receives'))
+        friends = list(FriendRequest.objects.filter(
+            user_s_id=id_user).values('user_receives__id'))
         cards = list(CardPost.objects.filter(
             user_id=user).values('id', 'content', 'category_id'))
         newUser = list(User.objects.filter(pk=id_user).values())
