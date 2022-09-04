@@ -21,7 +21,7 @@ class User(models.Model):
 
 
 class FriendRequest(models.Model):
-    status = models.ForeignKey(EnglishLevel, blank=True, null=True, on_delete=models.CASCADE,
+    status = models.ForeignKey(StatusFriendRequest, blank=True, null=True, on_delete=models.CASCADE,
                                related_name='friend_request_status')
     user_s = models.ForeignKey(User, blank=True, null=True, on_delete=models.CASCADE,
                                related_name='user_sends')
