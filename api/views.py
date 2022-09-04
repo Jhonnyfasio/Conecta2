@@ -60,7 +60,7 @@ class UserView(View):
         accepted = StatusFriendRequest.objects.get(id=2)
         rejected = StatusFriendRequest.objects.get(id=3)
         friends = list(FriendRequest.objects.filter(
-            user_s_id=user).filter(status_id=accepted).annotate(isAccepted=Count('user_sends', filter=Q(user_sends__status_id=accepted, user_sends___user_s_id=userStalker))).values('user_r_id__id', 'user_r_id__name', 'user_r_id__image', 'isAccepted'))
+            user_s_id=user).filter(status_id=accepted).annotate(isAccepted=Count('user_sends', filter=Q(status_id=accepted, user_s_id=userStalker))).values('user_r_id__id', 'user_r_id__name', 'user_r_id__image', 'isAccepted'))
         cards = list(CardPost.objects.filter(
             user_id=user).values('id', 'content', 'category_id'))
         newUser = list(User.objects.filter(pk=id_user).values())
