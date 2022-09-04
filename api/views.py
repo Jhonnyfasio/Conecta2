@@ -51,11 +51,12 @@ class UserView(View):
         return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, id_user):
+        cards = list()
         user = User.objects.get(id=id_user)
         cards = list(CardPost.objects.filter(
             user_id=user).values('id', 'content', 'category_id'))
 
-        data = {'user':  user, 'cards': cards}
+        data = {'cards': cards}
         return JsonResponse(data)
 
     def post(self, request):
