@@ -7,6 +7,10 @@ class EnglishLevel(models.Model):
     tag = models.CharField(max_length=10)
 
 
+class StatusFriendRequest(models.Model):
+    name = models.CharField(max_length=10)
+
+
 class User(models.Model):
     name = models.CharField(max_length=1000)
     email = models.EmailField(default='pedromorales@gmail.com')
@@ -14,6 +18,15 @@ class User(models.Model):
                                       related_name='user_english_level')
     id_firebase = models.CharField(max_length=1000, default="aaa")
     image = models.CharField(max_length=5000, default="aaaa")
+
+
+class FriendRequest(models.Model):
+    status = models.ForeignKey(EnglishLevel, blank=True, null=True, on_delete=models.CASCADE,
+                               related_name='friend_request_status')
+    user_s = models.ForeignKey(User, blank=True, null=True, on_delete=models.CASCADE,
+                               related_name='user_sends')
+    user_r = models.ForeignKey(User, blank=True, null=True, on_delete=models.CASCADE,
+                               related_name='user_receives')
 
 
 class Category(models.Model):
