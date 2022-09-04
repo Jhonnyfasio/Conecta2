@@ -97,7 +97,7 @@ class LikeView(View):
         card = CardPost.objects.get(id=dataLike['id_card'])
         like = Like.objects.filter(
             card_id=card, user_id=user).values_list('id', flat=True)
-        data = {'message': 'Sin datos'}
+        data = {'message': 'Sin datos', 'like': like}
 
         return JsonResponse(data)
 
