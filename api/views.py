@@ -56,7 +56,7 @@ class UserView(View):
         cards = list(CardPost.objects.filter(
             user_id=user).values('id', 'content', 'category_id'))
 
-        data = {'cards': cards}
+        data = {'user': user, 'cards': cards}
         return JsonResponse(data)
 
     def post(self, request):
