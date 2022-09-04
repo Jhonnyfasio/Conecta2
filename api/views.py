@@ -104,9 +104,10 @@ class LikeView(View):
             newLike.save()
             data = {'message': 'Success Update'}
         else:
-            Save.objects.create(
+            Like.objects.create(
                 status=dataLike['status'], card=card, user=user)
             data = {'message': "Success Create"}
+        return JsonResponse(data)
 
     def put(self, request):
         pass
