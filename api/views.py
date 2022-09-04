@@ -50,12 +50,12 @@ class UserView(View):
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
 
-    def get(self, request):
-        users = list(User.objects.values())
-        if len(users) > 0:
-            data = {'message': 'Success', 'users': users}
-        else:
-            data = {'message': 'users not found...'}
+    def get(self, request, id_user):
+        user = User.objects.get(id=id_user)
+        cards = list(CardPost.objects.filter(
+            user_id=user).values('id', 'content', 'category_id'))
+
+        data = {'user':  user, 'cards': cards}
         return JsonResponse(data)
 
     def post(self, request):
@@ -203,7 +203,7 @@ class CardsUserView(View):
             category_id=category).values('id', 'content', 'category_id', 'user_id'))
 
         if len(cards) > 0:
-            data = {'message': 'SUCCESS', 'cards': cards}
+            data = {'message': 'SUCCESS', 'user': {user, cards}}
         else:
             data = {'message': 'NO FOUND'}
         return JsonResponse(data)
