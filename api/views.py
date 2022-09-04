@@ -21,7 +21,7 @@ class CardPostView(View):
             'like_card', filter=Q(like_card__status=True, like_card__user_id=user))).annotate(isSave=Count(
                 'save_card', filter=Q(save_card__status=True, save_card__user_id=user))).annotate(countLike=Count(
                     'like_card', filter=Q(like_card__status=True))).values('id', 'user_id__name', 'content', 'category_id', 'user_id', 'isLike', 'isSave', 'countLike'))
-        
+
         if len(cards) > 0:
             data = {'cards': cards}
         else:
@@ -97,7 +97,7 @@ class LikeView(View):
         card = CardPost.objects.get(id=dataLike['id_card'])
         like = Like.objects.filter(
             card_id=card, user_id=user).values_list('id', flat=True)
-
+        data = {'message': 'Sin datos'}
         if len(like) == 1:
             newLike = Like.objects.get(id=like[0])
             newLike.status = dataLike['status']
@@ -140,7 +140,7 @@ class SaveView(View):
         card = CardPost.objects.get(id=dataLike['id_card'])
         save = Save.objects.filter(
             card_id=card, user_id=user).values_list('id', flat=True)
-
+        data = {'message': 'Sin datos'}
         if len(save) == 1:
             newSave = Save.objects.get(id=save[0])
             newSave.status = dataLike['status']
