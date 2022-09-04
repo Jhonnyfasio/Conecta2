@@ -55,9 +55,12 @@ class UserView(View):
         newUser = list()
         friends = list()
         user = User.objects.get(id=id_user)
-        status = StatusFriendRequest.objects.get(id=3)
+        userStalker = User.objects.get(id=id_user_stalker)
+        sent = StatusFriendRequest.objects.get(id=1)
+        accepted = StatusFriendRequest.objects.get(id=2)
+        rejected = StatusFriendRequest.objects.get(id=3)
         friends = list(FriendRequest.objects.filter(
-            user_s_id=user).filter(status_id=status).values('user_r_id__id', 'user_r_id__name', 'user_r_id__image'))
+            user_s_id=user).filter(status_id=accepted).annotate(isAccepted=Count('user_sends', filter=Q(user_sends__status_id=accepted, user_sends___user_s_id=userStalker))).values('user_r_id__id', 'user_r_id__name', 'user_r_id__image', 'isAccepted'))
         cards = list(CardPost.objects.filter(
             user_id=user).values('id', 'content', 'category_id'))
         newUser = list(User.objects.filter(pk=id_user).values())
@@ -81,7 +84,7 @@ class UserView(View):
 
 
 class LikeView(View):
-    @method_decorator(csrf_exempt)
+    @ method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
 
@@ -123,7 +126,7 @@ class LikeView(View):
 
 
 class SaveView(View):
-    @method_decorator(csrf_exempt)
+    @ method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
 
@@ -166,7 +169,7 @@ class SaveView(View):
 
 
 class FriendView(View):
-    @method_decorator(csrf_exempt)
+    @ method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
 
