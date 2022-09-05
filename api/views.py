@@ -59,9 +59,9 @@ class UserView(View):
         user = User.objects.get(id=id_user)
 
         userStalker = User.objects.get(id=id_user_stalker)
-        q1 = Q(user_s_id=userStalker)
+        q = Q(user_s_id=userStalker)
         q2 = Q(user_r_id=user)
-        statusRequest = list(FriendRequest.objects.filter(q1 & q2).values())
+        statusRequest = list(FriendRequest.objects.filter(q & q2).values())
 
         accepted = StatusFriendRequest.objects.get(id=2)
 
