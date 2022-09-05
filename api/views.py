@@ -55,19 +55,18 @@ class UserView(View):
         newUser = list()
         friends = list()
         statusRequest = list()
+        q1 = Q(user_s_id=userStalker)
+        q2 = Q(user_r_id=user)
         user = User.objects.get(id=id_user)
 
         userStalker = User.objects.get(id=id_user_stalker)
-        statusRequest = list(FriendRequest.objects.filter(
-            Q(user_s_id=userStalker) & Q(user_r_id=user)).values('status_id__id'))
+        statusRequest = list(FriendRequest.objects.filter(q1 & q2).values())
 
         accepted = StatusFriendRequest.objects.get(id=2)
 
         friends = list(FriendRequest.objects.filter(
             user_s_id=user).filter(status_id=accepted).values('user_r_id__id', 'user_r_id__name', 'user_r_id__image', 'isAccepted'))
 
-        friends_2 = list(FriendRequest.objects.filter(
-            user_r_id=user).filter(status_id=accepted).values('user_r_id__id', 'user_r_id__name', 'user_r_id__image', 'isAccepted'))
         cards = list(CardPost.objects.filter(
             user_id=user).values('id', 'content', 'category_id'))
         newUser = list(User.objects.filter(pk=id_user).values())
