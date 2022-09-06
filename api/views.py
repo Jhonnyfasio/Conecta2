@@ -4,7 +4,7 @@ from django.db.models import Count, Q
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
-from .models import CardPost, Category, User, Like, Save
+from .models import CardPost, Category, FriendRequest, StatusFriendRequest, User, Like, Save
 import json
 
 # Create your views here.
@@ -17,11 +17,11 @@ class CardPostView(View):
 
     def get(self, request, id_user):
         user = User.objects.get(id=id_user)
-        cards = list(CardPost.objects.annotate(isLike=Count(
+        cards = list(CardPost.objects.exclude(user_id=user).annotate(isLike=Count(
             'like_card', filter=Q(like_card__status=True, like_card__user_id=user))).annotate(isSave=Count(
                 'save_card', filter=Q(save_card__status=True, save_card__user_id=user))).annotate(countLike=Count(
                     'like_card', filter=Q(like_card__status=True))).values('id', 'user_id__name', 'content', 'category_id', 'user_id', 'isLike', 'isSave', 'countLike'))
-        
+
         if len(cards) > 0:
             data = {'cards': cards}
         else:
@@ -50,12 +50,25 @@ class UserView(View):
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
 
-    def get(self, request):
-        users = list(User.objects.values())
-        if len(users) > 0:
-            data = {'message': 'Success', 'users': users}
-        else:
-            data = {'message': 'users not found...'}
+    def get(self, request, id_user, id_user_stalker):
+        cards = list()
+        newUser = list()
+        friends = list()
+        statusRequest = list()
+        user = User.objects.get(id=id_user)
+
+        userStalker = User.objects.get(id=id_user_stalker)
+        statusRequest = list(FriendRequest.objects.filter((Q(user_s_id=userStalker) & Q(
+            user_r_id=user)) | (Q(user_s_id=user) & Q(user_r_id=userStalker))).values('status'))
+        accepted = StatusFriendRequest.objects.get(id=2)
+
+        friends = list(FriendRequest.objects.filter(
+            user_s_id=user).filter(status_id=accepted).values('user_r_id__id', 'user_r_id__name', 'user_r_id__image'))
+        cards = list(CardPost.objects.filter(
+            user_id=user).values('id', 'content', 'category_id'))
+        newUser = list(User.objects.filter(pk=id_user).values())
+        data = {'user': newUser[0], 'status': statusRequest,
+                'cards': cards, 'friends': friends}
         return JsonResponse(data)
 
     def post(self, request):
@@ -75,7 +88,7 @@ class UserView(View):
 
 
 class LikeView(View):
-    @method_decorator(csrf_exempt)
+    @ method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
 
@@ -97,7 +110,7 @@ class LikeView(View):
         card = CardPost.objects.get(id=dataLike['id_card'])
         like = Like.objects.filter(
             card_id=card, user_id=user).values_list('id', flat=True)
-
+        data = {'message': 'Sin datos'}
         if len(like) == 1:
             newLike = Like.objects.get(id=like[0])
             newLike.status = dataLike['status']
@@ -107,7 +120,6 @@ class LikeView(View):
             Like.objects.create(
                 status=dataLike['status'], card=card, user=user)
             data = {'message': "Success Create"}
-
         return JsonResponse(data)
 
     def put(self, request):
@@ -118,7 +130,7 @@ class LikeView(View):
 
 
 class SaveView(View):
-    @method_decorator(csrf_exempt)
+    @ method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
 
@@ -140,7 +152,7 @@ class SaveView(View):
         card = CardPost.objects.get(id=dataLike['id_card'])
         save = Save.objects.filter(
             card_id=card, user_id=user).values_list('id', flat=True)
-
+        data = {'message': 'Sin datos'}
         if len(save) == 1:
             newSave = Save.objects.get(id=save[0])
             newSave.status = dataLike['status']
@@ -158,6 +170,42 @@ class SaveView(View):
 
     def delete(self, request):
         pass
+
+
+class FriendView(View):
+    @ method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, id_user):
+        user = User.objects.get(id=id_user)
+        cards = list(User.objects.exclude(user_id=user).filter(category_id=category).annotate(isSave=Count(
+            'save_card', filter=Q(save_card__status=True, save_card__user_id=user))).filter(isSave=1).values('id', 'user_id__name', 'content', 'category_id', 'user_id', 'isSave'))
+
+        if len(cards) > 0:
+            data = {'message': 'SUCCESS', 'cards': cards}
+        else:
+            data = {'message': 'NO FOUND'}
+        return JsonResponse(data)
+
+    def post(self, request):
+        dataLike = json.loads(request.body)
+        user = User.objects.get(id=dataLike['id_user'])
+        card = CardPost.objects.get(id=dataLike['id_card'])
+        save = Save.objects.filter(
+            card_id=card, user_id=user).values_list('id', flat=True)
+        data = {'message': 'Sin datos'}
+        if len(save) == 1:
+            newSave = Save.objects.get(id=save[0])
+            newSave.status = dataLike['status']
+            newSave.save()
+            data = {'message': 'Success Update'}
+        else:
+            Save.objects.create(
+                status=dataLike['status'], card=card, user=user)
+            data = {'message': "Success Create"}
+
+        return JsonResponse(data)
 
 
 class CardsUserView(View):
