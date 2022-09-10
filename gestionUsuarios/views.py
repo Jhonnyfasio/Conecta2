@@ -8,6 +8,7 @@ from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from .models import Card as CardGU, User as UserGU, Like as LikeGU
 from api.models import CardPost as Card, Category, User, Like, Save
+from tqdm import tqdm
 import json
 
 # Suggestion math
@@ -84,8 +85,8 @@ def Suggestion(idUser):
     inputCards['rating_x'] = inputCards['rating_x'].fillna(0)
     inputCards['rating_y'] = inputCards['rating_y'].fillna(0)
     inputCards['rating'] = inputCards['rating_x'].astype(int) + inputCards['rating_y']
-    inputCards = inputCards.drop('rating_x',1)
-    inputCards = inputCards.drop('rating_y',1)
+    inputCards = inputCards.drop(columns=['rating_x'])
+    inputCards = inputCards.drop(columns=['rating_y'])
     #Guardando en CSV para respaldo.
     inputCards.to_csv('inputCards.csv')
     #inputCards = inputCards.head(20)
@@ -104,8 +105,8 @@ def Suggestion(idUser):
     userSubsetRating['rating_x'] = userSubsetRating['rating_x'].fillna(0)
     userSubsetRating['rating_y'] = userSubsetRating['rating_y'].fillna(0)
     userSubsetRating["rating"] = userSubsetRating['rating_x'].astype(int) + userSubsetRating["rating_y"]
-    userSubsetRating = userSubsetRating.drop('rating_x',1)
-    userSubsetRating = userSubsetRating.drop('rating_y',1)
+    userSubsetRating = userSubsetRating.drop(columns=['rating_x'])
+    userSubsetRating = userSubsetRating.drop(columns=['rating_y'])
     userSubsetRating.to_csv('userSubsetRating.csv')
 
     #print(userSubsetLike)
@@ -121,8 +122,8 @@ def Suggestion(idUser):
     userSubset['rating_x'] = userSubset['rating_x'].fillna(0)
     userSubset['rating_y'] = userSubset['rating_y'].fillna(0)
     userSubset["rating"] = userSubset['rating_x'].astype(int) + userSubset["rating_y"]
-    userSubset = userSubset.drop('rating_x',1)
-    userSubset = userSubset.drop('rating_y',1)
+    userSubset = userSubset.drop(columns=['rating_x'])
+    userSubset = userSubset.drop(columns=['rating_y'])
     userSubset.to_csv('userSubset.csv')
 
     #Groupby crea varios dataframes donde todos tienen el mismo valor para la columna especificada como parámetro
@@ -140,7 +141,7 @@ def Suggestion(idUser):
     #Ordenamos los usuarios respecto a su mayor índice de similitud
     topUsers = pearsonDF.sort_values(
         by='similarityIndex', ascending=False)[0:50]
-    
+    #print(topUsers)
     topUsersRating = topUsers.merge(userSubsetRating, left_on='user', right_on='user', how='inner')
     # Se multiplica la similitud de los puntajes de los usuarios
     topUsersRating['weightedRating'] = topUsersRating['similarityIndex'] * \
@@ -212,17 +213,63 @@ def pearson_correlation(userSubsetGroup, inputCards):
     
     return pearsonDF
 
+def pearson_correlation_i(userOne , userTwo, userRating: pd.DataFrame):
+    # Guardar la Correlación Pearson en un diccionario, donde la clave es el Id del usuario y el valor es el coeficiente
+    pearsonCorrelation = 0
+    #for name, group in userSubsetGroup:
+    #print(userRating.where(userRating['user'] == userOne).dropna())
+    inputCards = userRating.where(userRating['user'] == userOne).dropna()
+    toEvaluate = userRating.where(userRating['user'] == userTwo).dropna()
+    toEvaluate = toEvaluate[toEvaluate['card'].isin(inputCards['card'].tolist())]
+    if(toEvaluate.empty):
+        pearsonCorrelation = 0
+        return pearsonCorrelation
+    # Obtener el N para la fórmula
+    nRatings = len(toEvaluate)
+    # Obtener los puntajes de revisión para las cards en común
+    temp_df = inputCards[inputCards['card'].isin(toEvaluate['card'].tolist())]
+    # Guardarlas en una variable temporal con formato de lista para facilitar cálculos futuros
+    tempRatingList = temp_df['rating'].tolist()
+
+    # Pongamos también las revisiones de grupos de usuarios en una lista
+    tempGroupList = toEvaluate['rating'].tolist()
+
+    # Calculemos la Correlación Pearson entre dos usuarios, x e y
+    Sxx = sum([i**2 for i in tempRatingList]) - \
+        pow(sum(tempRatingList), 2)/float(nRatings)
+    Syy = sum([i**2 for i in tempGroupList]) - \
+        pow(sum(tempGroupList), 2)/float(nRatings)
+    Sxy = sum(i*j for i, j in zip(tempRatingList, tempGroupList)) - \
+        sum(tempRatingList)*sum(tempGroupList)/float(nRatings)
+
+    # Si el denominador es diferente a cero, entonces dividir, sino, la correlación es 0.
+    if Sxx != 0 and Syy != 0:
+        #print(Sxx)
+        #print(Syy)
+        #print(Sxy)
+        #print("-")
+        pearsonCorrelation= Sxy/sqrt(Sxx*Syy)
+        
+    else:
+        pearsonCorrelation = 0
+    return pearsonCorrelation
+
 
 #Cálculo de vecinos cercanos
 def calculate_neighbors(similarities_matrix, k_neighbors):
     
     neighbors = [None for _ in range(len(similarities_matrix))]
-    
-    for index, similarities in enumerate(tqdm(similarities_matrix, leave=False)):
+    print(neighbors)
+    for index, similarities in similarities_matrix.iterrows():
+        #print(index)
+        #print(similarities)
+        #print("---")
         i_neighbors = [i[0] for i in sorted(enumerate(similarities), 
                                             key=lambda x:float('-inf') if x[1] is None else x[1], 
                                             reverse=True)]
-        neighbors[index] = i_neighbors[0:k_neighbors]
+        #print(index)
+        #print(i_neighbors[0:k_neighbors])
+        neighbors[index-1] = i_neighbors[0:k_neighbors]
 
     return neighbors
 
@@ -241,28 +288,76 @@ def knn():
     userRating['rating_x'] = userRating['rating_x'].fillna(0)
     userRating['rating_y'] = userRating['rating_y'].fillna(0)
     userRating["rating"] = userRating['rating_x'].astype(int) + userRating["rating_y"]
-    userRating = userRating.drop('rating_x',1)
-    userRating = userRating.drop('rating_y',1)
+    userRating = userRating.drop(columns=['rating_x'])
+    userRating = userRating.drop(columns=['rating_y'])
     userRating.to_csv('userSubsetRating.csv')
     
-    print(userRating.values().tolist())
+    #   print(userRating.values().tolist())
     
-    userListRange = len(userList)
-    userRatingRange = len(userRating)
-    matrix = pd.DataFrame([userRating['rating']],
-                index=[np.array(userRating['card'].sort_values().drop_duplicates())],
-                columns=[np.array(userRating['card'].sort_values().drop_duplicates())])
-    #matrix = pd.DataFrame(data=np.array([np.array(xi) for xi in userRating['rating']]),
-    #            index=["U{}".format(str(i)) for i in range(len(userList))],
-    #            columns=["I{}".format(str(i)) for i in range(len(userRating))])
-    print(matrix)
+    userRatingMatrix = userRating.pivot(index='user',columns='card',values='rating').fillna(0)
+    userRatingMatrix = userRatingMatrix.rename_axis(None,axis=1)
+    userRatingMatrix = userRatingMatrix.rename_axis(None,axis=0)
 
-def read_ratings_matrix(file):
-    ratings = [[None for _ in range(NUM_ITEMS)] for _ in range(NUM_USERS)] 
+    userRatingMatrix.to_csv("userRatingMatrix.csv")
+    df = pd.DataFrame()
+    #userRatingMatrix.columns = ["C".format(+np.array(userRating['card'].sort_values().drop_duplicates()))]
+    #print(matrix.unstack(-1))
     
-    with open(file, 'r') as reader:
-        for line in reader:
-            [u, i, rating] = line.split("::")
-            ratings[int(u)][int(i)] = int(rating)
-            
-    return ratings
+    userRatingUser = userRating['user'].sort_values().drop_duplicates().reset_index(drop=True)
+    similarity = 0
+    userMatrix = pd.DataFrame(columns=['userOne','userTwo','similarity'])
+
+    #p1 = pearson_correlation_i(58,1,userRating)
+    #p2 = pearson_correlation_i(1,58,userRating)
+    #print(p1)
+    #print(p2)
+    #return 1
+
+    #class Found(Exception): pass
+    #try:
+    #    for userOne in userRatingUser:
+    #        for userTwo in userRatingUser:
+    #            if(userOne != userTwo):
+    #                similarity = pearson_correlation_i(userOne, userTwo, userRating)
+    #            else:
+    #                similarity = float('-inf')
+    #            
+    #            if(userOne==102):
+    #                raise Found
+    #            #print(str(userOne) + "-" + str(userTwo))
+    #            temp_pd = pd.DataFrame([[userOne,userTwo,similarity]],columns=['userOne','userTwo','similarity'])
+    #            userMatrix = pd.concat([userMatrix,temp_pd])
+    #            #print(userMatrix)
+    #except Found:
+    #    userMatrix.to_csv("userMatrix.csv")
+    #userMatrix = userMatrix.pivot(index='userOne',columns='userTwo',values='similarity')
+    #userMatrix.to_csv("userMatrix.csv")
+    
+    userMatrix = pd.read_csv('userMatrix.csv')
+    #print(userMatrix.head(10))
+    userLabels = userRating['card'].drop_duplicates().sort_values()
+    neighbors = calculate_neighbors(userMatrix,20)
+    print(neighbors)
+
+    dataK=np.array([np.array(xi) for xi in neighbors])
+    print(dataK)
+    userLabel=[str(i) for i in userRatingUser]
+    cardLabel=[str(i) for i in userLabels][0:20]
+    print(userLabel)
+    print(cardLabel)
+    userNeighbors = pd.DataFrame(data=dataK,
+                        index=userLabel,
+                        columns=cardLabel)
+
+    print(userNeighbors)
+    #print(userRatingMatrix)
+    
+    #print(userMatrix.values.tolist())
+    aux_sim = [[userMatrix.values.tolist()[index_u][neighbord] for index_j, neighbord in enumerate(user)] 
+           for index_u, user in enumerate(neighbors)]
+
+    matrixToPrint = pd.DataFrame(data=np.array([np.array(xi) for xi in aux_sim]),
+                index=userLabel,
+                columns=cardLabel)
+    
+    print(matrixToPrint)
