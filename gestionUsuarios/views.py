@@ -141,11 +141,14 @@ def Suggestion(idUser):
     #Ordenamos los usuarios respecto a su mayor índice de similitud
     topUsers = pearsonDF.sort_values(
         by='similarityIndex', ascending=False)[0:50]
-    #print(topUsers)
     topUsersRating = topUsers.merge(userSubsetRating, left_on='user', right_on='user', how='inner')
     # Se multiplica la similitud de los puntajes de los usuarios
     topUsersRating['weightedRating'] = topUsersRating['similarityIndex'] * \
         topUsersRating['rating']
+    #print("ASASAS")
+    #print(topUsersRating['rating'])
+    #print(topUsersRating['similarityIndex'])
+    #print(topUsersRating.head(100))
 
     # Se aplica una suma a los topUsers luego de agruparlos por userId
     tempTopUsersRating = topUsersRating.groupby(
@@ -249,9 +252,9 @@ def pearson_correlation_i(userOne , userTwo, userRating: pd.DataFrame):
         #print(Sxy)
         #print("-")
         pearsonCorrelation= Sxy/sqrt(Sxx*Syy)
-        
     else:
         pearsonCorrelation = 0
+
     return pearsonCorrelation
 
 
@@ -259,7 +262,7 @@ def pearson_correlation_i(userOne , userTwo, userRating: pd.DataFrame):
 def calculate_neighbors(similarities_matrix, k_neighbors):
     
     neighbors = [None for _ in range(len(similarities_matrix))]
-    print(neighbors)
+    #print(neighbors)
     for index, similarities in similarities_matrix.iterrows():
         #print(index)
         #print(similarities)
@@ -294,7 +297,7 @@ def knn():
     
     #   print(userRating.values().tolist())
     
-    userRatingMatrix = userRating.pivot(index='user',columns='card',values='rating').fillna(0)
+    userRatingMatrix = userRating.pivot(index='user',columns='card',values='rating').fillna("None")
     userRatingMatrix = userRatingMatrix.rename_axis(None,axis=1)
     userRatingMatrix = userRatingMatrix.rename_axis(None,axis=0)
 
@@ -335,29 +338,56 @@ def knn():
     
     userMatrix = pd.read_csv('userMatrix.csv')
     #print(userMatrix.head(10))
-    userLabels = userRating['card'].drop_duplicates().sort_values()
-    neighbors = calculate_neighbors(userMatrix,20)
-    print(neighbors)
-
+    userLabel = userRating['user'].drop_duplicates().sort_values().reset_index(drop=True)
+    cardLabel = userRating['card'].drop_duplicates().sort_values().reset_index(drop=True)
+    k = 50
+    neighbors = calculate_neighbors(userMatrix,k)
+    print(len(neighbors))
+    print(len(userLabel))
+    userRating.to_csv('userRating.csv')
     dataK=np.array([np.array(xi) for xi in neighbors])
-    print(dataK)
-    userLabel=[str(i) for i in userRatingUser]
-    cardLabel=[str(i) for i in userLabels][0:20]
-    print(userLabel)
-    print(cardLabel)
+    #print(dataK)
+    #print(userLabels.array)
+    #print(userLabel)
+    #print(cardLabel)
     userNeighbors = pd.DataFrame(data=dataK,
                         index=userLabel,
-                        columns=cardLabel)
+                        columns=userLabel.head(k))
 
-    print(userNeighbors)
+    #print(userNeighbors)
     #print(userRatingMatrix)
     
     #print(userMatrix.values.tolist())
     aux_sim = [[userMatrix.values.tolist()[index_u][neighbord] for index_j, neighbord in enumerate(user)] 
            for index_u, user in enumerate(neighbors)]
-
+    #print(aux_sim)
     matrixToPrint = pd.DataFrame(data=np.array([np.array(xi) for xi in aux_sim]),
                 index=userLabel,
-                columns=cardLabel)
-    
-    print(matrixToPrint)
+                columns=userLabel.head(k))
+    #print(userRatingMatrix.values.tolist())
+    predictions = [[None for _ in range(len(cardLabel)+1)] for _ in range(len(userLabel)+1)]
+    stack = matrixToPrint.unstack()
+    userRatingList = userRatingMatrix.values.tolist()
+
+    #print(userRatingList)
+    #print(predictions)
+    for user, cards in userRatingMatrix.iterrows():
+        for j, v in enumerate(userRatingList[0]):
+            sum_r = 0 
+            count = 0
+            for neighbor in neighbors[user-1]:
+                #print(str(user) + " - " + str(j)+" - " + str(neighbor))
+                #print(j)
+                #print(neighbor)
+                if userRatingList[neighbor][j] != "None":
+                    count += 1
+                    #print("/./")
+                    #print(userRatingList[neighbor][j])
+                    sum_r += userRatingList[neighbor][j]
+                    
+            predictions[user][j] = None if count == 0 else sum_r/count
+            #count = 1
+    print(predictions)
+    #print(matrixToPrint)
+    #print(stack.head(30))
+    #print(userRatingMatrix)
