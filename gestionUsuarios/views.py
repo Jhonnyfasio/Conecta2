@@ -340,7 +340,7 @@ def knn():
     #print(userMatrix.head(10))
     userLabel = userRating['user'].drop_duplicates().sort_values().reset_index(drop=True)
     cardLabel = userRating['card'].drop_duplicates().sort_values().reset_index(drop=True)
-    k = 50
+    k = 10
     neighbors = calculate_neighbors(userMatrix,k)
     print(len(neighbors))
     print(len(userLabel))
@@ -364,6 +364,7 @@ def knn():
     matrixToPrint = pd.DataFrame(data=np.array([np.array(xi) for xi in aux_sim]),
                 index=userLabel,
                 columns=userLabel.head(k))
+    print(matrixToPrint)
     #print(userRatingMatrix.values.tolist())
     predictions = [[None for _ in range(len(cardLabel)+1)] for _ in range(len(userLabel)+1)]
     stack = matrixToPrint.unstack()
@@ -371,6 +372,7 @@ def knn():
 
     #print(userRatingList)
     #print(predictions)
+    print(userRatingMatrix)
     for user, cards in userRatingMatrix.iterrows():
         for j, v in enumerate(userRatingList[0]):
             sum_r = 0 
@@ -387,7 +389,32 @@ def knn():
                     
             predictions[user][j] = None if count == 0 else sum_r/count
             #count = 1
-    print(predictions)
+    #print(pd.DataFrame(predictions))
+
+    # Creamos una matriz para el cálculo de predicciones
+    predictions = [[None for _ in range(len(cardLabel))] for _ in range(len(userLabel))]
+    
+    # Recorremos la matriz de votos
+    for user, u in userRatingMatrix.iterrows():
+        for j, v in enumerate(userRatingList[0]):
+            numerador = 0 
+            denominador = 0
+            for neighbor in neighbors[user]:
+                if userRatingList[neighbor][j] != "None":
+                    print(userMatrix[1][1])
+                    print(user)
+                    print(j)
+                    print("//")
+                    print(userMatrix[user][neighbor])
+                    print(userRatingList[neighbor][j])
+                    numerador += (userMatrix[user][neighbor] * userRatingList[neighbor][j])
+                    denominador += userRatingMatrix[user][neighbor]
+                    
+            predictions[user][j] = (None if denominador == 0 
+                                 else numerador/denominador)
+            
+    print(pd.DataFrame(predictions))
+
     #print(matrixToPrint)
     #print(stack.head(30))
     #print(userRatingMatrix)
