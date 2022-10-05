@@ -300,6 +300,8 @@ def knn():
     userRatingMatrix = userRating.pivot(index='user',columns='card',values='rating').fillna("None")
     userRatingMatrix = userRatingMatrix.rename_axis(None,axis=1)
     userRatingMatrix = userRatingMatrix.rename_axis(None,axis=0)
+    userRatingMatrix = userRatingMatrix.reset_index(drop=True)
+    userRatingMatrix = userRatingMatrix.T.reset_index(drop=True).T
 
     userRatingMatrix.to_csv("userRatingMatrix.csv")
     df = pd.DataFrame()
@@ -340,7 +342,7 @@ def knn():
     #print(userMatrix.head(10))
     userLabel = userRating['user'].drop_duplicates().sort_values().reset_index(drop=True)
     cardLabel = userRating['card'].drop_duplicates().sort_values().reset_index(drop=True)
-    k = 10
+    k = 2
     neighbors = calculate_neighbors(userMatrix,k)
     print(len(neighbors))
     print(len(userLabel))
@@ -364,57 +366,81 @@ def knn():
     matrixToPrint = pd.DataFrame(data=np.array([np.array(xi) for xi in aux_sim]),
                 index=userLabel,
                 columns=userLabel.head(k))
-    print(matrixToPrint)
+    #print(matrixToPrint)
     #print(userRatingMatrix.values.tolist())
     predictions = [[None for _ in range(len(cardLabel)+1)] for _ in range(len(userLabel)+1)]
     stack = matrixToPrint.unstack()
     userRatingList = userRatingMatrix.values.tolist()
+    matrixToPrint.to_csv("matrixToPrint.csv")
+    pd.DataFrame(neighbors).to_csv("neighbors.csv")
 
     #print(userRatingList)
     #print(predictions)
-    print(userRatingMatrix)
-    for user, cards in userRatingMatrix.iterrows():
-        for j, v in enumerate(userRatingList[0]):
-            sum_r = 0 
-            count = 0
-            for neighbor in neighbors[user-1]:
-                #print(str(user) + " - " + str(j)+" - " + str(neighbor))
-                #print(j)
-                #print(neighbor)
-                if userRatingList[neighbor][j] != "None":
-                    count += 1
-                    #print("/./")
-                    #print(userRatingList[neighbor][j])
-                    sum_r += userRatingList[neighbor][j]
-                    
-            predictions[user][j] = None if count == 0 else sum_r/count
-            #count = 1
-    #print(pd.DataFrame(predictions))
+    #print(userRatingMatrix)
+    #for user, cards in userRatingMatrix.iterrows():
+    #    for j, v in enumerate(userRatingList[0]):
+    #        sum_r = 0 
+    #        count = 0
+    #        for neighbor in neighbors[user-1]:
+    #            #print(str(user) + " - " + str(j)+" - " + str(neighbor))
+    #            #print(j)
+    #            #print(neighbor)
+    #            if userRatingList[neighbor][j] != "None":
+    #                count += 1
+    #                #print("/./")
+    #                #print(userRatingList[neighbor][j])
+    #                sum_r += userRatingList[neighbor][j]
+    #                
+    #        predictions[user][j] = None if count == 0 else sum_r/count
+    #        #count = 1
+    ##print(pd.DataFrame(predictions))
 
     # Creamos una matriz para el cálculo de predicciones
     predictions = [[None for _ in range(len(cardLabel))] for _ in range(len(userLabel))]
     
     # Recorremos la matriz de votos
+    #print(userRatingList)
+    
+    #print(userRatingMatrix)
     for user, u in userRatingMatrix.iterrows():
         for j, v in enumerate(userRatingList[0]):
             numerador = 0 
             denominador = 0
+            #print("neighbors of " +str(user) +" - ")
+            #print(neighbors[user])
             for neighbor in neighbors[user]:
                 if userRatingList[neighbor][j] != "None":
-                    print(userMatrix[1][1])
-                    print(user)
-                    print(j)
-                    print("//")
-                    print(userMatrix[user][neighbor])
-                    print(userRatingList[neighbor][j])
-                    numerador += (userMatrix[user][neighbor] * userRatingList[neighbor][j])
-                    denominador += userRatingMatrix[user][neighbor]
+                    #print(userRatingList[neighbor][j])
+                    #print(str(user) + " - " + str(j))
+                    #print("//")
+                    #print(userMatrix.values.tolist()[user][neighbor])
+                    #print(userRatingList[neighbor][j])
+                    numerador += (userMatrix.values.tolist()[user][neighbor] * userRatingList[neighbor][j])
+                    denominador += userMatrix.values.tolist()[user][neighbor]
                     
             predictions[user][j] = (None if denominador == 0 
                                  else numerador/denominador)
             
     print(pd.DataFrame(predictions))
-
+    print(make_recommendations(10,userRatingMatrix,predictions))
     #print(matrixToPrint)
     #print(stack.head(30))
     #print(userRatingMatrix)
+
+def make_recommendations(num_recomendations, ratings_matrix, predictions_matrix):
+    
+    # Creamos una matriz para las recomendaciones
+    recommendations = [[(None, None) for _ in range(num_recomendations)] for _ in range(102)]
+    
+    # Recorremos la matriz de votos
+    for i, u in enumerate(tqdm(ratings_matrix, leave=False)):
+        for j, v in enumerate(ratings_matrix[0]):
+            if ratings_matrix[i][j] == None:
+                recommendations[i].append((j, predictions_matrix[i][j]))
+        
+        # Ordenamos los items a recomendar al usuario
+        recommendations[i] = sorted(recommendations[i], 
+                                    key=lambda x:float('-inf') if x[1] is None else x[1], 
+                                    reverse=True)[0:num_recomendations]
+
+    return [[x[0] for x in reco_user] for reco_user in recommendations]
