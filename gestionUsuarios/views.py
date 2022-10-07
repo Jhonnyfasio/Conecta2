@@ -350,6 +350,7 @@ def knn():
                         columns=cardLabel)
 
     print(userNeighbors)
+    print("hi")
     #print(userRatingMatrix)
     
     #print(userMatrix.values.tolist())
