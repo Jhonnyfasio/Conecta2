@@ -8,7 +8,6 @@ from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from .models import Card as CardGU, User as UserGU, Like as LikeGU
 from api.models import CardPost as Card, Category, User, Like, Save
-from tqdm import tqdm
 import json
 
 # Suggestion math
