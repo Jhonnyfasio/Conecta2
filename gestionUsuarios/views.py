@@ -1,8 +1,9 @@
 from http.client import HTTPResponse
+from operator import pos
 from unicodedata import category
 from xml.etree.ElementTree import tostring
 from django.http.response import JsonResponse
-from django.db.models import Count, Q
+from django.db.models import Count, Q, Case, When
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
@@ -27,7 +28,7 @@ class SuggestionView(View):
         return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, id_user):
-        knn()
+        #knn()
         dataFrame = Suggestion(id_user)
         if len(dataFrame) > 0:
             data = {'message': 'Success', 'cards': dataFrame}
@@ -111,7 +112,7 @@ def Suggestion(idUser):
     userSubsetRating["rating"] = userSubsetRating['rating_x'].astype(int) + userSubsetRating["rating_y"]
     userSubsetRating = userSubsetRating.drop(columns=['rating_x'])
     userSubsetRating = userSubsetRating.drop(columns=['rating_y'])
-    userSubsetRating.to_csv('userSubsetRating.csv')
+    #userSubsetRating.to_csv('userSubsetRating.csv')
 
     #print(userSubsetLike)
     #print("---------------")
@@ -134,7 +135,7 @@ def Suggestion(idUser):
     userSubsetGroup = userSubset.groupby(['user'])
     print(userSubsetGroup)
     print("//////////////////////////////////")
-    #Ordenamiento de forma tal de que los usuarios con más películas en común tengan prioridad
+    #Ordenamiento de forma tal de que los usuarios con más cards en común tengan prioridad
     userSubsetGroup = sorted(userSubsetGroup,  key=lambda x: len(x[1]), reverse=True)
     
     inputCards.to_csv('inputCards.csv')
@@ -144,8 +145,10 @@ def Suggestion(idUser):
 
     #Ordenamos los usuarios respecto a su mayor índice de similitud
     topUsers = pearsonDF.sort_values(
-        by='similarityIndex', ascending=False)[0:50]
+        by=['similarityIndex','user'], ascending=[False,True])[0:7]
+    #print(topUsers)
     topUsersRating = topUsers.merge(userSubsetRating, left_on='user', right_on='user', how='inner')
+    #print(topUsersRating)
     # Se multiplica la similitud de los puntajes de los usuarios
     topUsersRating['weightedRating'] = topUsersRating['similarityIndex'] * \
         topUsersRating['rating']
@@ -158,29 +161,30 @@ def Suggestion(idUser):
     tempTopUsersRating = topUsersRating.groupby(
         'card').sum()[['similarityIndex', 'weightedRating']]
     tempTopUsersRating.columns = ['sum_similarityIndex', 'sum_weightedRating']
-
+    print(tempTopUsersRating)
+    tempTopUsersRating.to_csv("tempTopUserRating.csv")
     # Se crea un dataframe vacío
     recommendation_df = pd.DataFrame()
     # Ahora se toma el promedio ponderado
-    recommendation_df['card'] = tempTopUsersRating.index
-    recommendation_df['score'] = tempTopUsersRating['sum_weightedRating'] / \
-        tempTopUsersRating['sum_similarityIndex']
+    #print(tempTopUsersRating.index)
+    recommendation_df.index = tempTopUsersRating.index
+    recommendation_df['score'] = tempTopUsersRating['sum_weightedRating'] / tempTopUsersRating['sum_similarityIndex']
     recommendation_df = recommendation_df.sort_values(
-        by='score', ascending=False)
+        by=['score','card'], ascending=[False,True])
     recommendation_df.to_csv("topUsersRating.csv")
 
-    recommendation_df = recommendation_df.head(10)
+    #recommendation_df = recommendation_df.head(10)
     recommendation_df.to_csv("Suggesiton.csv")
-    user = User.objects.get(id=idUser)
+    print(recommendation_df.head(10).index)
+    ordering = Case(*[When(id=id, then=pos) for pos, id in enumerate(recommendation_df.head(10).index)])
     cardList = Card.objects.filter(
         id__in=recommendation_df.head(10).index).annotate(isLike=Count(
-            'like_card', filter=Q(like_card__status=True, like_card__user_id=user))).annotate(isSave=Count(
-                'save_card', filter=Q(save_card__status=True, save_card__user_id=user))).annotate(countLike=Count(
-                    'like_card', filter=Q(like_card__status=True))).values()
-
+            'like_card', filter=Q(like_card__status=True, like_card__user_id__in=recommendation_df.head(10).index))).annotate(isSave=Count(
+                'save_card', filter=Q(save_card__status=True, save_card__user_id__in=recommendation_df.head(10).index))).annotate(countLike=Count(
+                    'like_card', filter=Q(like_card__status=True))).order_by(ordering).values()
+    
     return list(cardList)
-    # return tempTopUsersRating.head(10)
-    # return recommendation_df['score'].head(10)
+
 
 
 def pearson_correlation(userSubsetGroup, inputCards):
@@ -272,8 +276,11 @@ def calculate_neighbors(similarities_matrix, k_neighbors):
     #neighbors = dict()
     similarities_matrix_iterr = similarities_matrix.iterrows()
     i=0
+    print(similarities_matrix_iterr)
     for index, similarities in similarities_matrix_iterr:
-        i_neighbors = [int(i[0]) for i in sorted(similarities.items(), 
+        #print(index)
+        #print(similarities)
+        i_neighbors = [int(i[0]) for i in sorted(enumerate(similarities), 
                                             key=lambda x:float('-inf') if x[1] is None else x[1], 
                                             reverse=True)]
         #neighbors[index] = i_neighbors[0:k_neighbors]
@@ -310,7 +317,7 @@ def knn():
     userRatingMatrix = userRatingMatrix.reset_index(drop=True)
     userRatingMatrix = userRatingMatrix.T.reset_index(drop=True).T
 
-    userRatingMatrix.to_csv("userRatingMatrix.csv")
+    #userRatingMatrix.to_csv("userRatingMatrix.csv")
     df = pd.DataFrame()
     #userRatingMatrix.columns = ["C".format(+np.array(userRating['card'].sort_values().drop_duplicates()))]
     #print(matrix.unstack(-1))
@@ -321,11 +328,11 @@ def knn():
     userSimilarityDF = userSimilarityDF.rename_axis(None,axis=0)
     temp_cardList = pd.read_csv('userSubsetRating.csv')
     #print(userMatrix.head(10))
-    userLabel = userSimilarityDF.columns.tolist()
+    userLabel = userSimilarityDF.index.tolist()
 
     cardLabel = temp_cardList['card'].drop_duplicates().tolist()
    
-    k = 10
+    k = 7
     neighbors = calculate_neighbors(userSimilarityDF,k)
     #print(len(neighbors))
     #print(neighbors)
@@ -363,11 +370,11 @@ def knn():
     
     predictions = [[None for _ in range(len(cardLabel))] for _ in range(len(userLabel))]
     #userRatingList = userRatingMatrix.values.tolist()
-    userRatingList = pd.read_csv("userSubsetRating.csv",index_col=0)
-    userRatingMatrix = userRatingList.pivot(index='user',columns='card',values='rating').fillna('None')
-    userRatingMatrix = userRatingMatrix.rename_axis(None,axis=0)
-    userRatingMatrix = userRatingMatrix.rename_axis(None,axis=1)
-    print(userRatingList.values.tolist())
+    userRatingCSV = pd.read_csv("userSubsetRating.csv",index_col=0)
+    userRatingMatrix = userRatingCSV.pivot(index='user',columns='card',values='rating').fillna('None')
+    #userRatingMatrix = userRatingMatrix.rename_axis(None,axis=0)
+    #userRatingMatrix = userRatingMatrix.rename_axis(None,axis=1)
+    #print(userRatingList.values.tolist())
     #userRatingList = userRatingList.values.tolist()
     #print(userRatingMatrix)
     pd.DataFrame(neighbors).to_csv("neighbors.csv")
@@ -376,35 +383,84 @@ def knn():
     predictions = [[None for _ in range(len(cardLabel))] for _ in range(len(userLabel))]
     
     userSimilarityList = userSimilarityDF.values.tolist()
-    print(userSimilarityList)
+    userRatingMatrix_iterr = userRatingMatrix.iterrows()
+    print(userRatingMatrix)
+    userRatingMatrix.to_csv("userRatingMatrix.csv")
+    #print(userSimilarityList)
     #print(userRatingList[1][3])
     # Recorrer la matriz de votos
-    for user, u in userRatingMatrix.iterrows():
-        for j, v in userRatingMatrix.iterrows():
+    #print(userRatingMatrix.iterrows())e
+    #print(userRatingMatrix.values)
+    #print(userLabel)
+    #print(userRatingList[16][3])
+    #print(userSimilarityList)
+    #print(neighbors)
+    #return
+    userRatingList = userRatingMatrix.values.tolist()
+    #print(userRatingList[99])
+    #print(type(userRatingList))
+    ###print("///")
+    #print(neighbors)
+    #print(type(userSimilarityList))
+    i = 0
+    #print(userSimilarityDF)
+    print(neighbors)
+    for user, m in enumerate(userLabel):
+    #for user in userLabel: 
+        #print(user)
+        j = 0
+        for card, n in enumerate(cardLabel):
+        #for card in cardLabel:
             numerador = 0 
             denominador = 0
-            i=0
             #print("neighbors of " +str(user) +" - ")
             #print(neighbors[i])
-            for neighbor in neighbors[i]:
+            for neighbor in neighbors[user]:
+                #condition = (userRatingList['user'] == user & (userRatingList['card'] == card))
+                #print(userRatingList[condition]['rating'])
+                #if userRatingList[condition]['rating'] != "None":
+                #print(userRatingMatrix.at[1,1])
+                #print(type(user))
+                #print(type(card))
+                #(neighbor)
+                #print("neigh")
+                if userRatingMatrix.iloc[neighbor, card] != "None":
+                #print(type(neighbor))
+                #print(type(user))
+                #print(type(card))
+                #print(userSimilarityList[user][neighbor])
+                #print(userRatingList[neighbor][card])
+                #if(neighbor == 100):
+                    #print(str(user) + " - " + str(neighbor) + " - " + str(card))
+                #if userRatingList[neighbor-1][card] != "None":
+                #    None
                 #print(neighbor)
                 #if userRatingList[neighbor][j] != "None":
-                print(userRatingList[(userRatingList['user'] == neighbor) & (userRatingList['card'] == j)]['rating'].tolist())
+                #print(userRatingList[(userRatingList['user'] == neighbor) & (userRatingList['card'] == j)]['rating'].tolist())
                 #if userRatingList[(userRatingList['user'] == neighbor) & (userRatingList['card']== j)]['rating'].tolist() != "None":
                     #print(userRatingList[neighbor][j])
                     #print(str(user) + " - " + str(j))
                     #print("//")
                     #print(userMatrix.values.tolist()[user][neighbor])
                     #print(userRatingList[neighbor][j])
-                #    numerador += (userSimilarityList[user][neighbor] * userRatingList[neighbor][j])
-                #    denominador += userSimilarityList[user][neighbor]
+                    #print(userSimilarityDF.at[user, neighbor])
+                    #print(userSimilarityList[user][neighbor])
+                    #print(userSimilarityList[user][neighbor])
                     
-            predictions[user][j] = (None if denominador == 0 
-                                 else numerador/denominador)
-            i+=1
+                    #print("usr: " + str(user) + " card: " + str(card) + " neigh: " + str(neighbor))
+                    #print(userSimilarityDF.iloc[user, neighbor])
+                    #print( userRatingMatrix.iloc[neighbor, card])
+                    numerador += (userSimilarityDF.iloc[user, neighbor] * userRatingMatrix.iloc[neighbor, card])
+                    #numerador += (userSimilarityList[user][neighbor-1] * userRatingList[neighbor-1][card])
+                    denominador += userSimilarityDF.iloc[user, neighbor]
+                    
+            predictions[i][j] = (None if denominador == 0 
+                                else numerador/denominador)
+            j+=1
+        i+=1
 
     #print(predictions)
-    pd.DataFrame(predictions).to_csv("predictions.csv")
+    pd.DataFrame(data=predictions,index=userLabel,columns=cardLabel).to_csv("predictions.csv")
     #print(userRatingList)
     recommendations = make_recommendations(30,userRatingList,predictions)
     #print(recommendations)
