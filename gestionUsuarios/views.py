@@ -28,7 +28,7 @@ class SuggestionView(View):
         return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, id_user):
-        #knn()
+        knn()
         dataFrame = Suggestion(id_user)
         if len(dataFrame) > 0:
             data = {'message': 'Success', 'cards': dataFrame}
@@ -332,7 +332,7 @@ def knn():
 
     cardLabel = temp_cardList['card'].drop_duplicates().tolist()
    
-    k = 7
+    k = 5
     neighbors = calculate_neighbors(userSimilarityDF,k)
     #print(len(neighbors))
     #print(neighbors)
@@ -462,8 +462,8 @@ def knn():
     #print(predictions)
     pd.DataFrame(data=predictions,index=userLabel,columns=cardLabel).to_csv("predictions.csv")
     #print(userRatingList)
-    recommendations = make_recommendations(30,userRatingList,predictions)
-    #print(recommendations)
+    recommendations = make_recommendations(100,userRatingMatrix,predictions, userLabel, cardLabel)
+    print(recommendations)
     pd.DataFrame(recommendations).to_csv("recommendations.csv")
     #print(len(userRatingList))
     #print(len(userRatingList))
@@ -510,17 +510,19 @@ def pearson_correlation_all():
     userMatrix.to_csv("userMatrix.csv")
 
 
-def make_recommendations(num_recomendations, ratings_matrix, predictions_matrix):
-    
+def make_recommendations(num_recomendations, ratings_matrix, predictions_matrix, userLabel, cardLabel):
     # Crear una matriz para las recomendaciones
     recommendations = [[(None, None) for _ in range(num_recomendations)] for _ in range(len(ratings_matrix))]
-
     # Recorrer la matriz de votos
     for i, u in enumerate(ratings_matrix):
         for j, v in enumerate(ratings_matrix[0]):
             if ratings_matrix[i][j] == "None":
-                recommendations[i].append((j, predictions_matrix[i][j]))
-        
+                print(str(j) + " - " + str(predictions_matrix[i][j]))
+                if(predictions_matrix[i][j] != None):
+                    print(predictions_matrix[i][j])
+                    recommendations[i].append((int(userLabel[j]), int(cardLabel[int(predictions_matrix[i][j])])))
+                else:
+                    recommendations[i].append((int(userLabel[j]), predictions_matrix[i][j]))    
         # Ordenar los items a recomendar al usuario
         recommendations[i] = sorted(recommendations[i], 
                                     key=lambda x:float('-inf') if x[1] is None else x[1], 
