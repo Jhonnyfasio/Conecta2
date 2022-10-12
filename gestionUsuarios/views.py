@@ -57,6 +57,22 @@ class Pearson(View):
         pearson_correlation_all()
         return JsonResponse({'message':'Success, pearson matrix made'})
 
+class Recommendation(View):
+    def get(self):
+        knn()
+
+class PearsonRecommendation(View):
+    def get(self, request, idUser):
+        recommendation = get_recommendation(idUser)
+        print(recommendation)
+        if len(recommendation) > 0:
+            data = {'message': 'Success', 'cards': recommendation}
+        else:
+            data = {'message': 'No cards to suggest'}
+        return JsonResponse(data)
+
+
+
 def Suggestion(idUser):
     print('unziping ...')
 
@@ -178,11 +194,12 @@ def Suggestion(idUser):
     #recommendation_df = recommendation_df.head(10)
     recommendation_df.to_csv("Suggesiton.csv")
     print(recommendation_df.head(10).index)
+    user = User.objects.get(id=idUser)
     ordering = Case(*[When(id=id, then=pos) for pos, id in enumerate(recommendation_df.head(10).index)])
     cardList = Card.objects.filter(
         id__in=recommendation_df.head(10).index).annotate(isLike=Count(
-            'like_card', filter=Q(like_card__status=True, like_card__user_id__in=recommendation_df.head(10).index))).annotate(isSave=Count(
-                'save_card', filter=Q(save_card__status=True, save_card__user_id__in=recommendation_df.head(10).index))).annotate(countLike=Count(
+            'like_card', filter=Q(like_card__status=True, like_card__user_id=user))).annotate(isSave=Count(
+                'save_card', filter=Q(save_card__status=True, save_card__user_id=user))).annotate(countLike=Count(
                     'like_card', filter=Q(like_card__status=True))).order_by(ordering).values()
     
     return list(cardList)
@@ -407,7 +424,7 @@ def knn():
     #print(userRatingList)
     recommendations = make_recommendations(100,userRatingList,predictions, userLabel, cardLabel)
     #print(recommendations)
-    pd.DataFrame(recommendations).to_csv("recommendations.csv")
+    pd.DataFrame(recommendations, index=userLabel).to_csv("recommendations.csv")
 
 
 def pearson_correlation_all():
@@ -432,7 +449,6 @@ def pearson_correlation_all():
     userRatingUser = userRating['user'].sort_values().drop_duplicates().reset_index(drop=True)
     similarity = 0
     userMatrix = pd.DataFrame(columns=['userOne','userTwo','similarity'])
-
 
     for userOne in userRatingUser:
         for userTwo in userRatingUser:
@@ -471,3 +487,16 @@ def make_recommendations(num_recomendations, ratings_matrix, predictions_matrix,
                                     reverse=True)[0:num_recomendations]
 
     return [[x[0] for x in reco_user] for reco_user in recommendations]
+
+def get_recommendation(idUser):
+    recommendationsMatrix = pd.read_csv("recommendations.csv",index_col=0)
+    recommendation = recommendationsMatrix.loc[idUser]
+    user = User.objects.get(id=idUser)
+    ordering = Case(*[When(id=id, then=pos) for pos, id in enumerate(recommendation.values.tolist())])
+    cards = list(Card.objects.filter(id__in=recommendation.values.tolist()).annotate(isLike=Count(
+            'like_card', filter=Q(like_card__status=True, like_card__user_id=user))).annotate(isSave=Count(
+                'save_card', filter=Q(save_card__status=True, save_card__user_id=user))).annotate(countLike=Count(
+                    'like_card', filter=Q(like_card__status=True))).order_by(ordering).values())
+
+    return cards
+    
