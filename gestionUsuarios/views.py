@@ -54,11 +54,12 @@ class SuggestionView(View):
 class Pearson(View):
     def get(self, request):      
         pearson_correlation_all()
-        return JsonResponse({'message':'Success, pearson matrix made'})
+        return JsonResponse({'message':'Success, pearson matrix done'})
 
 class Recommendation(View):
-    def get(self):
+    def get(self, request):
         knn()
+        return JsonResponse({'message':'Success, recommendations matrix done'})
 
 class PearsonRecommendation(View):
     def get(self, request, idUser):
