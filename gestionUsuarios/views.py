@@ -257,10 +257,11 @@ def pearson_correlation_i(userOne , userTwo, userRating: pd.DataFrame):
     # Guardar la Correlación Pearson en un diccionario, donde la clave es el Id del usuario y el valor es el coeficiente
     pearsonCorrelation = 0
     #https://www.projectpro.io/recipes/search-value-within-pandas-dataframe-column
-    #inputCards = userRating.where(userRating['user'] == userOne).dropna().sort_values(by='card')
-    #toEvaluate = userRating.where(userRating['user'] == userTwo).dropna().sort_values(by='card')
-    inputCards = userRating[inputCards]
+    inputCards = userRating.where(userRating['user'] == userOne).dropna().sort_values(by='card')
+    toEvaluate = userRating.where(userRating['user'] == userTwo).dropna().sort_values(by='card')
+    #inputCards = userRating[inputCards]
     toEvaluate = toEvaluate[toEvaluate['card'].isin(inputCards['card'].tolist())]
+    #inputCards = userRating.where(userRating)
     if(toEvaluate.empty):
         pearsonCorrelation = 0
         return pearsonCorrelation
@@ -402,18 +403,25 @@ def pearson_correlation_all():
     userRatingMatrix = userRatingMatrix.rename_axis(None,axis=1)
     userRatingMatrix = userRatingMatrix.rename_axis(None,axis=0)
     userRatingList = userRatingMatrix.values.tolist()
+    #userRating = userRating.sort_values('user')
 
-    print(userRatingMatrix)
+    print(userRating.itertuples())
     
     userRatingUser = userRating['user'].sort_values().drop_duplicates().reset_index(drop=True)
     similarity = 0
     userMatrix = pd.DataFrame(columns=['userOne','userTwo','similarity'])
 
+    for index in userRating.itertuples():
+        print(index)
+        #(value)
+        print(".")
+
     for userOne, x in enumerate(userRatingUser):
         if(userOne <= 10):
             for userTwo, y in enumerate(userRatingUser):
                 if(userOne != userTwo):
-                    similarity = pearson_correlation_i(userOne, userTwo, userRatingList)
+                    similarity = pearson_correlation_i(userOne, userTwo, userRating)
+                    #similarity = pearson_correlation_i(userOne, userTwo, userRating.items())
                     None
                 else:
                     similarity = float('-inf')
