@@ -175,7 +175,7 @@ def Suggestion(idUser):
     recommendation_df['score'] = tempTopUsersRating['sum_weightedRating'] / tempTopUsersRating['sum_similarityIndex']
     recommendation_df = recommendation_df.sort_values(
         by=['score','card'], ascending=[False,True])
-    #Respaldar en un CSV con fines visuales
+    # Respaldar en un CSV con fines visuales
     recommendation_df.to_csv("Suggestion.csv")
     print(recommendation_df.head(10).index)
     user = User.objects.get(id=idUser)
