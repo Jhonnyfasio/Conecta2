@@ -253,14 +253,26 @@ def pearson_correlation(userSubsetGroup, inputCards):
     
     return pearsonDF
 
-def pearson_correlation_i(userOne , userTwo, userRating: pd.DataFrame):
+def pearson_correlation_i(userOne , userTwo, userRating: pd.DataFrame, group):
     # Guardar la Correlación Pearson en un diccionario, donde la clave es el Id del usuario y el valor es el coeficiente
     pearsonCorrelation = 0
     #https://www.projectpro.io/recipes/search-value-within-pandas-dataframe-column
-    inputCards = userRating.where(userRating['user'] == userOne).dropna().sort_values(by='card')
-    toEvaluate = userRating.where(userRating['user'] == userTwo).dropna().sort_values(by='card')
+
+    #print(group.get_group(userOne))
+    inputCards = group.get_group(userOne)
+    toEvaluate = group.get_group(userTwo)
+    #print(inputCards)
+    #print(toEvaluate)
+
+    #inputCards = userRating.where(userRating['user'] == userOne).dropna().sort_values(by='card')
+    #toEvaluate = userRating.where(userRating['user'] == userTwo).dropna().sort_values(by='card')
     #inputCards = userRating[inputCards]
+    #toEvaluate = toEvaluate[toEvaluate['card'].isin(inputCards['card'].tolist())]
+    
     toEvaluate = toEvaluate[toEvaluate['card'].isin(inputCards['card'].tolist())]
+    #print(toEvaluate)
+    #toEvaluate.datalen
+    
     #inputCards = userRating.where(userRating)
     if(toEvaluate.empty):
         pearsonCorrelation = 0
@@ -404,34 +416,41 @@ def pearson_correlation_all():
     userRatingMatrix = userRatingMatrix.rename_axis(None,axis=0)
     userRatingList = userRatingMatrix.values.tolist()
     #userRating = userRating.sort_values('user')
-
-    print(userRating.itertuples())
     
     userRatingUser = userRating['user'].sort_values().drop_duplicates().reset_index(drop=True)
     similarity = 0
     userMatrix = pd.DataFrame(columns=['userOne','userTwo','similarity'])
 
-    for index in userRating.itertuples():
-        print(index)
-        #(value)
-        print(".")
+    userSubsetGroup = userRating.groupby(['user'])
+    #print(userSubsetGroup)
 
-    for userOne, x in enumerate(userRatingUser):
-        if(userOne <= 10):
-            for userTwo, y in enumerate(userRatingUser):
-                if(userOne != userTwo):
-                    similarity = pearson_correlation_i(userOne, userTwo, userRating)
-                    #similarity = pearson_correlation_i(userOne, userTwo, userRating.items())
-                    None
-                else:
-                    similarity = float('-inf')
-                    None
-            
+    userLabel = userRatingMatrix.index.tolist()
+    cardLabel = userRating['card'].drop_duplicates().tolist()
+
+    #for name, group in userSubsetGroup:
+    #    print(name)
+    #    print(group)
+    #    #(value)
+    #    print(".")
+    userMatrix = recommendations = [[(None, None) for _ in range(len(userLabel))] for _ in range(len(userLabel))]
+    for i, userOne in enumerate(userRatingUser):
+        #if(userOne <= 10):
+        for j, userTwo in enumerate(userRatingUser):
+            if(userOne != userTwo):
+                similarity = pearson_correlation_i(userOne, userTwo, userRating, userSubsetGroup)
+                #similarity = pearson_correlation_i(userOne, userTwo, userRating.items())
+                None
+            else:
+                similarity = float('-inf')
+                None
+            userMatrix[i][j] = similarity
             #temp_pd = pd.DataFrame([[userOne,userTwo,similarity]],columns=['userOne','userTwo','similarity'])
             #userMatrix = pd.concat([userMatrix,temp_pd])
-            print(str(userOne) + "-" + str(userTwo))
-
-    userMatrix = userMatrix.pivot(index='userOne',columns='userTwo',values='similarity')
+        #print(str(userOne) + "-" + str(userTwo))
+    userMatrix = pd.DataFrame(data=userMatrix,index=userLabel,columns=userLabel)
+    print(userMatrix)
+    #userMatrix = userMatrix.pivot(index='userOne',columns='userTwo',values='similarity')
+    userMatrix.to_csv("userMatrix.csv")
 
 def make_recommendations(num_recomendations, ratings_matrix, predictions_matrix, userLabel, cardLabel):
     # Crear una matriz para las recomendaciones
