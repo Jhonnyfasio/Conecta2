@@ -29,14 +29,18 @@ class CardPostView(View):
         return JsonResponse(data)
 
     def post(self, request):
-        card = json.loads(request.body)
-        user = User.objects.get(id=card['id_user'])
-        category = Category.objects.get(id=card['id_category'])
-        CardPost.objects.create(
-            content=card['content'], user=user, category=category)
-        data = {'message': "Success"}
-
-        return JsonResponse(data)
+        try:
+            card = json.loads(request.body)
+            print('HOLA')
+            user = User.objects.get(id=card['id_user'])
+            print('HOLA')
+            category = Category.objects.get(id=card['id_category'])
+            CardPost.objects.create(
+                content=card['content'], user=user, category=category)
+            data = {'message': "Success"}
+            return JsonResponse(data)
+        except KeyError:
+            print(KeyError)
 
     def put(self, request):
         pass
