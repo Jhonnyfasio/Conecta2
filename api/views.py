@@ -31,10 +31,11 @@ class CardPostView(View):
     def post(self, request):
         try:
             card = json.loads(request.body)
-            print('HOLA')
+            print(card)
             user = User.objects.get(id=card['id_user'])
-            print('HOLA')
+            print(user)
             category = Category.objects.get(id=card['id_category'])
+            print(category)
             CardPost.objects.create(
                 content=card['content'], user=user, category=category)
             data = {'message': "Success"}
