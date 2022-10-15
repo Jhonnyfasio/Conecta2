@@ -71,7 +71,7 @@ class UserView(View):
         #    user_s_id=user).filter(status_id=accepted).annotate(id=F('user_r_id__id'), name=F('user_r_id__name'), image=F('user_r_id__image')).values('id', 'name', 'image'))
 
         friends_two = list(FriendRequest.objects.filter(
-            user_r_id=user).filter(status_id=accepted).values('user_s_id__id', 'user_s_id__name', 'user_s_id__image'))
+            user_r_id=user).filter(status_id=accepted).values('id', 'name', 'image'))
         #friends_result = friends_one + friends_two
         cards = list(CardPost.objects.filter(
             user_id=user).values('id', 'content', 'category_id'))
