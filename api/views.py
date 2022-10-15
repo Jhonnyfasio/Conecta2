@@ -1,6 +1,6 @@
 from unicodedata import category
 from django.http.response import JsonResponse
-from django.db.models import Count, Q
+from django.db.models import Count, Q, F
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
@@ -68,7 +68,7 @@ class UserView(View):
         accepted = StatusFriendRequest.objects.get(id=2)
 
         friends_one = list(FriendRequest.objects.filter(
-            user_s_id=user).annotate(filter(status_id=accepted)).values('id', 'name', 'image'))
+            user_s_id=user).filter(status_id=accepted).annotate(id=F('user_r_id__id')).values('id'))
 
         friends_two = list(FriendRequest.objects.filter(
             user_r_id=user).filter(status_id=accepted).values('user_s_id__id', 'user_s_id__name', 'user_s_id__image'))
