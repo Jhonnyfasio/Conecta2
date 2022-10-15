@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import CardPostView, FriendView, LikeView, SaveView, CardsUserView, AllCardsUserView, UserView
+from .views import CardPostView, FriendView, LikeView, SaveView, CardsUserView, AllCardsUserView, UserView, FriendRequests
 
 
 urlpatterns = [
@@ -18,6 +18,8 @@ urlpatterns = [
          CardsUserView.as_view(), name='get_cards_create_category'),
     path('all_create_card/<int:id_user>',
          AllCardsUserView.as_view(), name='get_all_cards_create'),
+    path('friend_requests/<int:id_user>',
+         FriendRequests.as_view(), name='get_friend_requests'),
 
 
 ]

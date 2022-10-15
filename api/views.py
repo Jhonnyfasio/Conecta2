@@ -31,11 +31,11 @@ class CardPostView(View):
     def post(self, request):
         try:
             card = json.loads(request.body)
-            print(card)
+
             user = User.objects.get(id=card['id_user'])
-            print(user)
+
             category = Category.objects.get(id=card['id_category'])
-            print(category)
+
             CardPost.objects.create(
                 content=card['content'], user=user, category=category)
             data = {'message': "Success"}
@@ -58,7 +58,7 @@ class UserView(View):
     def get(self, request, id_user, id_user_stalker):
         cards = list()
         newUser = list()
-        friends = list()
+        friends_result = list()
         statusRequest = list()
         user = User.objects.get(id=id_user)
 
@@ -242,4 +242,15 @@ class AllCardsUserView(View):
             data = {'message': 'SUCCESS', 'cards': cards}
         else:
             data = {'message': 'NO FOUND'}
+        return JsonResponse(data)
+
+
+class FriendRequests(View):
+    def get(self, request, id_user):
+        user = User.objects.get(id=id_user)
+        sent = StatusFriendRequest.objects.get(id=1)
+        friend_request = list()
+        friend_request = list(FriendRequest.objects.filter(
+            user_s_id=user).filter(status_id=sent).values('user_r_id__id', 'user_r_id__name', 'user_r_id__image'))
+        data = {'friend_request': friend_request}
         return JsonResponse(data)
