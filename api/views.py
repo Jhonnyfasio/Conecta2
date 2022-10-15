@@ -67,11 +67,9 @@ class UserView(View):
             user_r_id=user)) | (Q(user_s_id=user) & Q(user_r_id=userStalker))).values('status'))
         accepted = StatusFriendRequest.objects.get(id=2)
 
-        friends_one = list(FriendRequest.objects.filter(
-            user_s_id=user).filter(status_id=accepted).values('user_r_id__id', 'user_r_id__name', 'user_r_id__image'))
-        friends_one['id'] = friends_one.pop['user_r_id__id']
-        friends_one['name'] = friends_one.pop['user_r_id__name']
-        friends_one['image'] = friends_one.pop['user_r_id__image']
+        friends_one = list(FriendRequest.objects.annotate(filter(
+            user_s_id=user).filter(status_id=accepted)).values('id', 'name', 'image'))
+
         friends_two = list(FriendRequest.objects.filter(
             user_r_id=user).filter(status_id=accepted).values('user_s_id__id', 'user_s_id__name', 'user_s_id__image'))
         friends_result = friends_one + friends_two
