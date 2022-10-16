@@ -81,7 +81,7 @@ class UserView(View):
             statusRequest = 0
         else:
             statusRequest = statusRequest[0]
-        data = {'user': newUser[0], 'status': statusRequest[0],
+        data = {'user': newUser[0], 'status': statusRequest,
                 'cards': cards, 'friends': friends_result}
         return JsonResponse(data)
 
