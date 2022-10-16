@@ -59,7 +59,7 @@ class UserView(View):
         cards = list()
         newUser = list()
         friends_result = list()
-        statusRequest = list()
+
         user = User.objects.get(id=id_user)
 
         userStalker = User.objects.get(id=id_user_stalker)
@@ -80,7 +80,7 @@ class UserView(View):
         if len(statusRequest) == 0:
             statusRequest = 0
         else:
-            statusRequest = statusRequest[0]
+            statusRequest = statusRequest[0].status
         data = {'user': newUser[0], 'status': statusRequest,
                 'cards': cards, 'friends': friends_result}
         return JsonResponse(data)
