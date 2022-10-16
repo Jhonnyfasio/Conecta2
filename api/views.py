@@ -68,10 +68,10 @@ class UserView(View):
         accepted = StatusFriendRequest.objects.get(id=2)
 
         friends_one = list(FriendRequest.objects.filter(
-            user_s_id=user).filter(status_id=accepted).annotate(id=F('user_r__id'), name=F('user_r__name'), image=F('user_r__image')).values('id', 'name', 'image'))
+            user_s_id=user).filter(status_id=accepted).annotate(id=F('user_r_id'), name=F('user_r__name'), image=F('user_r__image')).values('id', 'name', 'image'))
 
         friends_two = list(FriendRequest.objects.filter(
-            user_r_id=user).filter(status_id=accepted).annotate(id=F('user_s__id'), name=F('user_s__name'), image=F('user_s__image')).values('id', 'name', 'image'))
+            user_r_id=user).filter(status_id=accepted).annotate(id=F('user_s_id'), name=F('user_s__name'), image=F('user_s__image')).values('id', 'name', 'image'))
         friends_result = friends_one + friends_two
         cards = list(CardPost.objects.filter(
             user_id=user).values('id', 'content', 'category_id'))
