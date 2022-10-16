@@ -281,7 +281,7 @@ class FriendRequests(View):
             data = {'message': 'Success Update'}
         else:
             FriendRequest.objects.create(
-                status=status, user_r=user_r, user_s=user_s)
+                status=status, user_s=user_s, user_r=user_r)
             data = {'message': "Success Create"}
 
         return JsonResponse(data)
