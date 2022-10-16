@@ -262,18 +262,22 @@ class FriendRequests(View):
     def post(self, request):
         data = json.loads(request.body)
         user_s = User.objects.get(id=data['user_s'])
+        print(user_s.name)
+        status = StatusFriendRequest.objects.get(id=data['status'])
         user_r = User.objects.get(id=data['user_r'])
+        print(user_r.name)
         request = FriendRequest.objects.filter(
             user_s_id=user_s, user_r_id=user_r).values_list('id', flat=True)
         data = {'message': 'Sin datos'}
+        print(request[0])
         if len(request) == 1:
             newRequest = FriendRequest.objects.get(id=request[0])
-            newRequest.status = data['status']
+            newRequest.status = status
             newRequest.save()
             data = {'message': 'Success Update'}
         else:
             FriendRequest.objects.create(
-                status=data['status'], user_r=user_r, user_s=user_s)
+                status=status, user_r=user_r, user_s=user_s)
             data = {'message': "Success Create"}
 
         return JsonResponse(data)

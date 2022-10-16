@@ -20,7 +20,7 @@ urlpatterns = [
          AllCardsUserView.as_view(), name='get_all_cards_create'),
     path('friend_requests/<int:id_user>',
          FriendRequests.as_view(), name='get_friend_requests'),
-    path('friend_requests/',
+    path('friend_requests',
          FriendRequests.as_view(), name='post_friend_requests'),
 
 
