@@ -250,6 +250,10 @@ class AllCardsUserView(View):
 
 
 class FriendRequests(View):
+    @ method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
     def get(self, request, id_user):
         user = User.objects.get(id=id_user)
         sent = StatusFriendRequest.objects.get(id=1)
