@@ -68,7 +68,7 @@ class UserView(View):
         accepted = StatusFriendRequest.objects.get(id=2)
 
         friends_one = list(FriendRequest.objects.filter(
-            user_s_id=user).filter(status_id=accepted).annotate(idTEST=F('user_r_id'), TEST=F('user_r__name'), TEST2=F('user_r__image')).values('idTEST', 'TEST', 'TEST2'))
+            user_s_id=user).filter(status_id=accepted).annotate(idTEST=F('user_r_id'), name=F('user_r__name'), image=F('user_r__image')).values('idTEST', 'TEST', 'TEST2'))
 
         # friends_two = list(FriendRequest.objects.filter(
         #    user_r_id=user).filter(status_id=accepted).annotate(id=F('user_s_id'), name=F('user_s__name'), image=F('user_s__image')).values('id', 'name', 'image'))
