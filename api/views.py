@@ -79,7 +79,7 @@ class UserView(View):
             'idUser', 'id', 'name', 'email', 'english_level_id', 'id_firebase', 'image'))
         if len(statusRequest) == 0:
             statusRequest = 0
-        data = {'user': newUser[0], 'status': statusRequest,
+        data = {'user': newUser[0], 'status': statusRequest[0],
                 'cards': cards, 'friends': friends_result}
         return JsonResponse(data)
 
