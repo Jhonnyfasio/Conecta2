@@ -58,7 +58,7 @@ class UserView(View):
     def get(self, request, id_user, id_user_stalker):
         cards = list()
         newUser = list()
-        friends_result = list()
+        friends_one = list()
         statusRequest = list()
         user = User.objects.get(id=id_user)
 
@@ -68,18 +68,18 @@ class UserView(View):
         accepted = StatusFriendRequest.objects.get(id=2)
 
         friends_one = list(FriendRequest.objects.filter(
-            user_s_id=user).filter(status_id=accepted).annotate(id=F('user_r_id'), name=F('user_r__name'), image=F('user_r__image')).values('id', 'name', 'image'))
+            user_s_id=user).filter(status_id=accepted).annotate(idTEST=F('user_r_id'), TEST=F('user_r__name'), TEST2=F('user_r__image')).values('idTEST', 'TEST', 'TEST2'))
 
-        friends_two = list(FriendRequest.objects.filter(
-            user_r_id=user).filter(status_id=accepted).annotate(id=F('user_s_id'), name=F('user_s__name'), image=F('user_s__image')).values('id', 'name', 'image'))
-        friends_result = friends_one + friends_two
+        # friends_two = list(FriendRequest.objects.filter(
+        #    user_r_id=user).filter(status_id=accepted).annotate(id=F('user_s_id'), name=F('user_s__name'), image=F('user_s__image')).values('id', 'name', 'image'))
+        #friends_result = friends_one + friends_two
         cards = list(CardPost.objects.filter(
             user_id=user).values('id', 'content', 'category_id'))
         newUser = list(User.objects.filter(pk=id_user).values())
         if len(statusRequest) == 0:
             statusRequest = 0
         data = {'user': newUser[0], 'status': statusRequest,
-                'cards': cards, 'friends': friends_result}
+                'cards': cards, 'friends': friends_one}
         return JsonResponse(data)
 
     def post(self, request):
