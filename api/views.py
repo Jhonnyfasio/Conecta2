@@ -255,6 +255,25 @@ class FriendRequests(View):
         sent = StatusFriendRequest.objects.get(id=1)
         friend_request = list()
         friend_request = list(FriendRequest.objects.filter(
-            user_s_id=user).filter(status_id=sent).values('user_r_id__id', 'user_r_id__name', 'user_r_id__image'))
+            user_s_id=user).filter(status_id=sent).annotate(idUser=F('user_r__id'), name=F('user_r__name'), email=F('user_r__email'), english_level_id=F('user_r__english_level_id'), id_firebase=F('user_r__id_firebase'), image=F('user_r__image')).values('idUser', 'id', 'name', 'email', 'english_level_id', 'id_firebase', 'image'))
         data = {'friend_request': friend_request}
+        return JsonResponse(data)
+
+    def post(self, request):
+        data = json.loads(request.body)
+        user_s = User.objects.get(id=data['user_s'])
+        user_r = User.objects.get(id=data['user_r'])
+        request = FriendRequest.objects.filter(
+            user_s_id=user_s, user_r_id=user_r).values_list('id', flat=True)
+        data = {'message': 'Sin datos'}
+        if len(request) == 1:
+            newRequest = FriendRequest.objects.get(id=request[0])
+            newRequest.status = data['status']
+            newRequest.save()
+            data = {'message': 'Success Update'}
+        else:
+            FriendRequest.objects.create(
+                status=data['status'], user_r=user_r, user_s=user_s)
+            data = {'message': "Success Create"}
+
         return JsonResponse(data)
