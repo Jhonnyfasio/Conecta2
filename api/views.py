@@ -255,7 +255,7 @@ class FriendRequests(View):
         sent = StatusFriendRequest.objects.get(id=1)
         friend_request = list()
         friend_request = list(FriendRequest.objects.filter(
-            user_s_id=user).filter(status_id=sent).annotate(idUser=F('user_r__id'), name=F('user_r__name'), email=F('user_r__email'), english_level_id=F('user_r__english_level_id'), id_firebase=F('user_r__id_firebase'), image=F('user_r__image')).values('idUser', 'id', 'name', 'email', 'english_level_id', 'id_firebase', 'image'))
+            user_r_id=user).filter(status_id=sent).annotate(idUser=F('user_s__id'), name=F('user_s__name'), email=F('user_s__email'), english_level_id=F('user_s__english_level_id'), id_firebase=F('user_s__id_firebase'), image=F('user_s__image')).values('idUser', 'id', 'name', 'email', 'english_level_id', 'id_firebase', 'image'))
         data = {'friend_request': friend_request}
         return JsonResponse(data)
 
