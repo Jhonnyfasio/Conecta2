@@ -177,12 +177,12 @@ def Suggestion(idUser):
         by=['score','card'], ascending=[False,True])
     # Respaldar en un CSV con fines visuales
     recommendation_df.to_csv("Suggestion.csv")
-    print(recommendation_df.head(100).index)
+    print(recommendation_df.head(10).index)
     user = User.objects.get(id=idUser)
-    ordering = Case(*[When(id=id, then=pos) for pos, id in enumerate(recommendation_df.head(100).index)])
+    ordering = Case(*[When(id=id, then=pos) for pos, id in enumerate(recommendation_df.head(10).index)])
     # Obtener las cards para retornar como recomendación al usuario
     cardList = list(Card.objects.filter(
-        id__in=recommendation_df.head(100).index).exclude(user_id=user).annotate(isLike=Count(
+        id__in=recommendation_df.head(10).index).exclude(user_id=user).annotate(isLike=Count(
             'like_card', filter=Q(like_card__status=True, like_card__user_id=user))).annotate(isSave=Count(
                 'save_card', filter=Q(save_card__status=True, save_card__user_id=user))).annotate(countLike=Count(
                     'like_card', filter=Q(like_card__status=True))).order_by(ordering).values('id', 'user_id__name', 'user_id__image', 'content', 'category_id', 'user_id', 'isLike', 'isSave', 'countLike'))
