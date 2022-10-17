@@ -50,6 +50,7 @@ class Like(models.Model):
 
 
 class Save(models.Model):
+    id = models.AutoField(primary_key=True)
     status = models.BooleanField()
     user = models.ForeignKey(User, blank=True, null=True, on_delete=models.CASCADE,
                              related_name='save_user')
