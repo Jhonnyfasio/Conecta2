@@ -56,5 +56,3 @@ class Save(models.Model):
                              related_name='save_user')
     card = models.ForeignKey(CardPost, blank=True, null=True, on_delete=models.CASCADE,
                              related_name='save_card')
-    category = models.ForeignKey(Category, blank=True, null=True, on_delete=models.CASCADE,
-                                 related_name='save_category')
