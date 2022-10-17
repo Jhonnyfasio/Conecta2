@@ -63,7 +63,7 @@ class Recommendation(View):
 class PearsonRecommendation(View):
     def get(self, request, idUser):
         recommendation = get_recommendation(idUser)
-        print(recommendation)
+        #print(recommendation)
         if len(recommendation) > 0:
             data = {'message': 'Success', 'cards': recommendation}
         else:
@@ -177,17 +177,17 @@ def Suggestion(idUser):
         by=['score','card'], ascending=[False,True])
     # Respaldar en un CSV con fines visuales
     recommendation_df.to_csv("Suggestion.csv")
-    print(recommendation_df.head(10).index)
+    print(recommendation_df.head(100).index)
     user = User.objects.get(id=idUser)
-    ordering = Case(*[When(id=id, then=pos) for pos, id in enumerate(recommendation_df.head(10).index)])
+    ordering = Case(*[When(id=id, then=pos) for pos, id in enumerate(recommendation_df.head(100).index)])
     # Obtener las cards para retornar como recomendación al usuario
-    cardList = Card.objects.filter(
-        id__in=recommendation_df.head(10).index).annotate(isLike=Count(
+    cardList = list(Card.objects.filter(
+        id__in=recommendation_df.head(100).index).exclude(user_id=user).annotate(isLike=Count(
             'like_card', filter=Q(like_card__status=True, like_card__user_id=user))).annotate(isSave=Count(
                 'save_card', filter=Q(save_card__status=True, save_card__user_id=user))).annotate(countLike=Count(
-                    'like_card', filter=Q(like_card__status=True))).order_by(ordering).values('id', 'user_id__name', 'user_id__image', 'content', 'category_id', 'user_id', 'isLike', 'isSave', 'countLike')
+                    'like_card', filter=Q(like_card__status=True))).order_by(ordering).values('id', 'user_id__name', 'user_id__image', 'content', 'category_id', 'user_id', 'isLike', 'isSave', 'countLike'))
     
-    return list(cardList)
+    return cardList
     
 
 def pearson_correlation(userSubsetGroup, inputCards):
@@ -378,7 +378,7 @@ def pearson_correlation_all():
 
     # Convertir a dataframe la matriz de similitudes
     userSimilarityMatrix = pd.DataFrame(data=userSimilarityMatrix,index=userLabel,columns=userLabel)
-    print(userSimilarityMatrix)
+    #print(userSimilarityMatrix)
     # Respaldar la matriz de similitudes de los usuarios
     userSimilarityMatrix.to_csv("userMatrix.csv")
 
@@ -406,10 +406,11 @@ def get_recommendation(idUser):
     user = User.objects.get(id=idUser)
     ordering = Case(*[When(id=id, then=pos) for pos, id in enumerate(recommendation.values.tolist())])
     # Obtener las cards a recomendar con parámetros como su total contenido y su conteo de likes, entre otros
-    cards = list(Card.objects.filter(id__in=recommendation.values.tolist()).annotate(isLike=Count(
+    cards = list(Card.objects.filter(id__in=recommendation.values.tolist()).exclude(user_id=user).annotate(isLike=Count(
             'like_card', filter=Q(like_card__status=True, like_card__user_id=user))).annotate(isSave=Count(
                 'save_card', filter=Q(save_card__status=True, save_card__user_id=user))).annotate(countLike=Count(
                     'like_card', filter=Q(like_card__status=True))).order_by(ordering).values('id', 'user_id__name', 'user_id__image', 'content', 'category_id', 'user_id', 'isLike', 'isSave', 'countLike'))
 
     return cards
+    
     
