@@ -185,7 +185,7 @@ def Suggestion(idUser):
         id__in=recommendation_df.head(10).index).annotate(isLike=Count(
             'like_card', filter=Q(like_card__status=True, like_card__user_id=user))).annotate(isSave=Count(
                 'save_card', filter=Q(save_card__status=True, save_card__user_id=user))).annotate(countLike=Count(
-                    'like_card', filter=Q(like_card__status=True))).order_by(ordering).values()
+                    'like_card', filter=Q(like_card__status=True))).order_by(ordering).values('id', 'user_id__name', 'user_id__image', 'content', 'category_id', 'user_id', 'isLike', 'isSave', 'countLike')
     
     return list(cardList)
     
@@ -409,7 +409,7 @@ def get_recommendation(idUser):
     cards = list(Card.objects.filter(id__in=recommendation.values.tolist()).annotate(isLike=Count(
             'like_card', filter=Q(like_card__status=True, like_card__user_id=user))).annotate(isSave=Count(
                 'save_card', filter=Q(save_card__status=True, save_card__user_id=user))).annotate(countLike=Count(
-                    'like_card', filter=Q(like_card__status=True))).order_by(ordering).values())
+                    'like_card', filter=Q(like_card__status=True))).order_by(ordering).values('id', 'user_id__name', 'user_id__image', 'content', 'category_id', 'user_id', 'isLike', 'isSave', 'countLike'))
 
     return cards
     
