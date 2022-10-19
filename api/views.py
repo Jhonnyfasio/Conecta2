@@ -20,8 +20,7 @@ class CardPostView(View):
         cards = list(CardPost.objects.exclude(user_id=user).annotate(isLike=Count(
             'like_card', filter=Q(like_card__status=True, like_card__user_id=user))).annotate(isSave=Count(
                 'save_card', filter=Q(save_card__status=True, save_card__user_id=user))).annotate(countLike=Count(
-                    'like_card', filter=Q(like_card__status=True))).values('id', 'user_id__name', 'user_id__image', 'content', 'category_id', 'user_id', 'isLike', 'isSave', 'countLike'))
-
+                    'like_card', filter=Q(like_card__status=True), distinct=True)).values('id', 'user_id__name', 'user_id__image', 'content', 'category_id', 'user_id', 'isLike', 'isSave', 'countLike'))
         if len(cards) > 0:
             data = {'cards': cards}
         else:
@@ -125,9 +124,12 @@ class LikeView(View):
         like = Like.objects.filter(
             card_id=card, user_id=user).values_list('id', flat=True)
         data = {'message': 'Sin datos'}
+        print(len(like))
         if len(like) == 1:
             newLike = Like.objects.get(id=like[0])
+            #print(like[0])
             newLike.status = dataLike['status']
+            print(newLike)
             newLike.save()
             data = {'message': 'Success Update'}
         else:
@@ -153,7 +155,6 @@ class SaveView(View):
         category = Category.objects.get(id=id_category)
         cards = list(CardPost.objects.exclude(user_id=user).filter(category_id=category).annotate(isSave=Count(
             'save_card', filter=Q(save_card__status=True, save_card__user_id=user))).filter(isSave=1).values('id', 'user_id__name', 'content', 'category_id', 'user_id', 'isSave'))
-
         if len(cards) > 0:
             data = {'message': 'SUCCESS', 'cards': cards}
         else:
@@ -171,6 +172,7 @@ class SaveView(View):
             newSave = Save.objects.get(id=save[0])
             newSave.status = dataLike['status']
             newSave.save()
+            print(newSave)
             data = {'message': 'Success Update'}
         else:
             Save.objects.create(
