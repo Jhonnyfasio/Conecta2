@@ -18,6 +18,7 @@ class User(models.Model):
                                       related_name='user_english_level')
     id_firebase = models.CharField(max_length=1000, default="aaa")
     image = models.CharField(max_length=5000, default="aaaa")
+    image_up = models.ImageField(null=True, blank=True ,upload_to='images/')
 
 
 class FriendRequest(models.Model):
