@@ -183,8 +183,8 @@ def Suggestion(idUser):
     # Obtener las cards para retornar como recomendación al usuario
     cardList = list(Card.objects.filter(
         id__in=recommendation_df.head(10).index).exclude(user_id=user).annotate(isLike=Count(
-            'like_card', filter=Q(like_card__status=True, like_card__user_id=user, distinct=True))).annotate(isSave=Count(
-                'save_card', filter=Q(save_card__status=True, save_card__user_id=user, distinct=True))).annotate(countLike=Count(
+            'like_card', filter=Q(like_card__status=True, like_card__user_id=user), distinct=True)).annotate(isSave=Count(
+                'save_card', filter=Q(save_card__status=True, save_card__user_id=user), distinct=True)).annotate(countLike=Count(
                     'like_card', filter=Q(like_card__status=True), distinct=True)).order_by(ordering).values('id', 'user_id__name', 'user_id__image', 'content', 'category_id', 'user_id', 'isLike', 'isSave', 'countLike'))
     
     return cardList
@@ -407,8 +407,8 @@ def get_recommendation(idUser):
     ordering = Case(*[When(id=id, then=pos) for pos, id in enumerate(recommendation.values.tolist())])
     # Obtener las cards a recomendar con parámetros como su total contenido y su conteo de likes, entre otros
     cards = list(Card.objects.filter(id__in=recommendation.values.tolist()).exclude(user_id=user).annotate(isLike=Count(
-            'like_card', filter=Q(like_card__status=True, like_card__user_id=user, distinct=True))).annotate(isSave=Count(
-                'save_card', filter=Q(save_card__status=True, save_card__user_id=user, distinct=True))).annotate(countLike=Count(
+            'like_card', filter=Q(like_card__status=True, like_card__user_id=user), distinct=True)).annotate(isSave=Count(
+                'save_card', filter=Q(save_card__status=True, save_card__user_id=user), distinct=True)).annotate(countLike=Count(
                     'like_card', filter=Q(like_card__status=True), distinct=True)).order_by(ordering).values('id', 'user_id__name', 'user_id__image', 'content', 'category_id', 'user_id', 'isLike', 'isSave', 'countLike'))
 
     return cards
