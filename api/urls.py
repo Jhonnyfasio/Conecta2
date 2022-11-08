@@ -2,7 +2,7 @@ from django.urls import path
 from .views import CardPostView, FriendView, LikeView, SaveView, CardsUserView, AllCardsUserView, UserView, FriendRequests
 from django.conf import settings
 from django.conf.urls.static import static
-
+from . import views
 
 urlpatterns = [
      path('cards/<int:id_user>', CardPostView.as_view(), name='get_cards'),
@@ -24,5 +24,7 @@ urlpatterns = [
          FriendRequests.as_view(), name='get_friend_requests'),
      path('friend_requests/',
          FriendRequests.as_view(), name='post_friend_requests'),
-
+     
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+urlpatterns += path('login',views.login),

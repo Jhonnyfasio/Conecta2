@@ -4,11 +4,37 @@ from django.db.models import Count, Q, F
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
+from rest_framework.decorators import api_view
+from rest_framework.authtoken.models import Token
+from django.contrib.auth.models import User as UserD
+from django.contrib.auth.hashers import check_password
+from rest_framework.response import Response
 from .models import CardPost, Category, FriendRequest, StatusFriendRequest, User, Like, Save
 import json
 
 # Create your views here.
 
+#///
+
+@api_view(['GET'])
+#@api_view(['POST])
+def login(request):
+    #username = request.POST.get('username')
+    #password = request.POST.get('password')
+    try:
+        #user = UserD.objects.get(username="pedrome")
+        user = User.objects.get(email='pedromorales2@gmail.com')
+    except User.DoesNotExist:
+        return Response("Usuario inválido")
+    
+    #pwd_valid = check_password(password,user.password)
+    #if(not pwd_valid):
+    #    return Response("Contraseña inválida")
+
+    token = Token.objects.create(user=user)
+    print(token.key)
+    return Response(token.key)
+#///
 
 class CardPostView(View):
     @method_decorator(csrf_exempt)
