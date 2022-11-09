@@ -12,7 +12,7 @@ from django.contrib.auth.hashers import check_password
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import viewsets
-from api.serializer import UserSerializers
+from api.serializer import UserSerializers, LikeSerializer, SaveSerializer
 from .models import CardPost, Category, FriendRequest, StatusFriendRequest, User, Like, Save
 import json
 
@@ -41,23 +41,73 @@ def login(request):
     return Response(token.key)
 #///
 
-class CardPostViewSet(viewsets.ViewSet):
+class CardPostViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializers
-    query_set = UserSerializers.Meta.model.objects.all()
+    queryset = UserSerializers.Meta.model.objects.all()
 
+    def create(self, request):
+        try:
+            card = json.loads(request.body)
 
-    def list(self, request, id_user):
-        user = User.objects.get(id=id_user)
-        cards = list(CardPost.objects.exclude(user_id=user).annotate(isLike=Count(
-            'like_card', filter=Q(like_card__status=True, like_card__user_id=user), distinct=True)).annotate(isSave=Count(
-                'save_card', filter=Q(save_card__status=True, save_card__user_id=user), distinct=True)).annotate(countLike=Count(
-                    'like_card', filter=Q(like_card__status=True), distinct=True)).values('id', 'user_id__name', 'user_id__image', 'content', 'category_id', 'user_id', 'isLike', 'isSave', 'countLike'))
-        if len(cards) > 0:
-            data = {'cards': cards}
+            user = User.objects.get(id=card['id_user'])
+
+            category = Category.objects.get(id=card['id_category'])
+
+            CardPost.objects.create(
+                content=card['content'], user=user, category=category)
+            data = {'message': "Success"}
+            return JsonResponse(data)
+        except KeyError:
+            print(KeyError)
+
+class LikeViewSet(viewsets.ModelViewSet):
+    serializer_class = LikeSerializer
+    queryset = LikeSerializer.Meta.model.objects.all()
+
+    def create(self, request):
+        dataLike = json.loads(request.body)
+        user = User.objects.get(id=dataLike['id_user'])
+        card = CardPost.objects.get(id=dataLike['id_card'])
+        like = Like.objects.filter(
+            card_id=card, user_id=user).values_list('id', flat=True)
+        data = {'message': 'Sin datos'}
+        print(len(like))
+        if len(like) == 1:
+            newLike = Like.objects.get(id=like[0])
+            #print(like[0])
+            newLike.status = dataLike['status']
+            print(newLike)
+            newLike.save()
+            data = {'message': 'Success Update'}
         else:
-            data = {'message': 'Cards not found...'}
+            Like.objects.create(
+                status=dataLike['status'], card=card, user=user)
+            data = {'message': "Success Create"}
         return JsonResponse(data)
 
+class SaveViewSet(viewsets.ModelViewSet):
+    serializer_class = SaveSerializer
+    queryset = SaveSerializer.Meta.model.objects.all()
+
+    def create(self, request):
+        dataLike = json.loads(request.body)
+        user = User.objects.get(id=dataLike['id_user'])
+        card = CardPost.objects.get(id=dataLike['id_card'])
+        save = Save.objects.filter(
+            card_id=card, user_id=user).values_list('id', flat=True)
+        data = {'message': 'Sin datos'}
+        if len(save) == 1:
+            newSave = Save.objects.get(id=save[0])
+            newSave.status = dataLike['status']
+            newSave.save()
+            print(newSave)
+            data = {'message': 'Success Update'}
+        else:
+            Save.objects.create(
+                status=dataLike['status'], card=card, user=user)
+            data = {'message': "Success Create"}
+
+        return JsonResponse(data)
 
 class CustomAuthToken(ObtainAuthToken):
 
