@@ -7,6 +7,7 @@ from django.db.models import Count, Q, Case, When
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
+from rest_framework.permissions import IsAuthenticated
 from .models import Card as CardGU, User as UserGU, Like as LikeGU
 from api.models import CardPost as Card, Category, User, Like, Save
 import json
@@ -22,11 +23,13 @@ import re
 
 
 class SuggestionView(View):
+    permission_classes = [IsAuthenticated]
     @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, id_user):
+        permission_classes = [IsAuthenticated]
         dataFrame = Suggestion(id_user)
         if len(dataFrame) > 0:
             data = {'message': 'Success', 'cards': dataFrame}

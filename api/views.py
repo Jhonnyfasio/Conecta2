@@ -9,6 +9,7 @@ from rest_framework.authtoken.models import Token
 from django.contrib.auth.models import User as UserD
 from django.contrib.auth.hashers import check_password
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 from .models import CardPost, Category, FriendRequest, StatusFriendRequest, User, Like, Save
 import json
 
