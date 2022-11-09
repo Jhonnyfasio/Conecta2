@@ -17,9 +17,10 @@ class StatusFriendRequest(models.Model):
 
 
 class User(AbstractUser):
-    username = models.CharField(max_length=100,unique=True)
+    
     name = models.CharField(max_length=1000)
     email = models.EmailField(default='pedromorales2@gmail.com', unique=True)
+    username = models.CharField(max_length=100)
     english_level = models.ForeignKey(EnglishLevel, blank=True, null=True, on_delete=models.CASCADE,
                                       related_name='user_english_level')
     password = models.SlugField(max_length=170, default="aaa")
