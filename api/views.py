@@ -16,22 +16,22 @@ import json
 
 #///
 
-@api_view(['GET'])
-#@api_view(['POST])
+#@api_view(['GET'])
+@api_view(['POST'])
 def login(request):
-    #username = request.POST.get('username')
-    #password = request.POST.get('password')
+    email = request.POST.get('email')
+    password = request.POST.get('password')
     try:
         #user = UserD.objects.get(username="pedrome")
-        user = User.objects.get(email='pedromorales2@gmail.com')
+        user = User.objects.get(email=email)
     except User.DoesNotExist:
         return Response("Usuario inválido")
     
-    #pwd_valid = check_password(password,user.password)
-    #if(not pwd_valid):
-    #    return Response("Contraseña inválida")
+    pwd_valid = check_password(password,user.password)
+    if(not pwd_valid):
+        return Response("Contraseña inválida")
 
-    token = Token.objects.create(user=user)
+    token, create = Token.objects.get_or_create(user=user)
     print(token.key)
     return Response(token.key)
 #///

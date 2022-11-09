@@ -28,7 +28,7 @@ class User(AbstractUser):
     image = models.CharField(max_length=5000, default="aaaa")
     image_up = models.ImageField(null=True, blank=True ,upload_to='images/')
     last_login = models.DateTimeField(auto_now_add=True)
-    REQUIRED_FIELDS = []
+    REQUIRED_FIELDS = ['username']
     USERNAME_FIELD = 'email'
 
     objects = UserManager()
