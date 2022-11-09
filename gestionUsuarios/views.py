@@ -7,7 +7,11 @@ from django.db.models import Count, Q, Case, When
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
+from django.shortcuts import get_list_or_404
 from rest_framework.permissions import IsAuthenticated
+from rest_framework import viewsets
+from rest_framework.response import Response
+from gestionUsuarios.serializer import UserSerializers
 from .models import Card as CardGU, User as UserGU, Like as LikeGU
 from api.models import CardPost as Card, Category, User, Like, Save
 import json
@@ -21,21 +25,48 @@ import re
 
 # Create your views here.
 
+class SuggestionViewSet(viewsets.ViewSet):
+    permission_classes = (IsAuthenticated,)
+
+    def retrieve(self, request, pk):
+        queryset = User.objects.all()
+        user = get_list_or_404(queryset,id=pk)
+        serializer = UserSerializers(user)
+        dataFrame = Suggestion(pk)
+        if len(dataFrame) > 0:
+            data = {'message': 'Success', 'cards': dataFrame}
+        else:
+            data = {'message': 'No cards to suggest'}
+        return Response(serializer.data)
+        return JsonResponse(data)
+        
+
+    
 
 class SuggestionView(View):
-    permission_classes = [IsAuthenticated]
+    permission_classes = (IsAuthenticated,)
     @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, id_user):
-        permission_classes = [IsAuthenticated]
+        print(request.Token)
+        permission_classes = (IsAuthenticated,)
+
         dataFrame = Suggestion(id_user)
         if len(dataFrame) > 0:
             data = {'message': 'Success', 'cards': dataFrame}
         else:
             data = {'message': 'No cards to suggest'}
         return JsonResponse(data)
+
+
+        #dataFrame = Suggestion(id_user)
+        #if len(dataFrame) > 0:
+        #    data = {'message': 'Success', 'cards': dataFrame}
+        #else:
+        #    data = {'message': 'No cards to suggest'}
+        #return JsonResponse(data)
 
     def post(self, request):
         card = json.loads(request.body)
@@ -88,8 +119,10 @@ def Suggestion(idUser):
         return JsonResponse({"message:": "Failure, no data found"})
 
     # Extraer las cards con like y saved del usuario a sugerir y guardado en un dataframe
-    inputCardsLike = pd.DataFrame(Like.objects.filter(user=idUser).order_by('card').values('card'))
-    inputCardsSave = pd.DataFrame(Save.objects.filter(user=idUser).order_by('card').values('card'))
+    inputCardsLike = pd.DataFrame(Like.objects.filter(user=idUser,status=True).order_by('card').values('card'))
+    inputCardsSave = pd.DataFrame(Save.objects.filter(user=idUser,status=True).order_by('card').values('card'))
+    print("len")
+    print(len(inputCardsLike))
     if inputCardsLike.empty and inputCardsSave.empty:
         return JsonResponse({"message:": "Failure, no data found"})
     

@@ -1,5 +1,7 @@
 from gestionUsuarios.viewsets import userviewsets
-from rest_framework import routers
+from gestionUsuarios.views import SuggestionViewSet
+from rest_framework.routers import DefaultRouter
 
-router = routers.DefaultRouter()
-router.register('user', userviewsets, base_name='user_api')
+router = DefaultRouter()
+router.register('suggestion', SuggestionViewSet, basename='suggestionset')
+urlpatterns = router.urls
