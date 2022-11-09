@@ -1,8 +1,13 @@
-from django.urls import path
-from .views import CardPostView, FriendView, LikeView, SaveView, CardsUserView, AllCardsUserView, UserView, FriendRequests
+from django.urls import path, include
+from .views import CardPostView, FriendView, LikeView, SaveView, CardsUserView, AllCardsUserView, UserView, FriendRequests, CardPostViewSet, CustomAuthToken
 from django.conf import settings
 from django.conf.urls.static import static
+from rest_framework.routers import DefaultRouter
+from rest_framework.authtoken import views
 from . import views
+
+router = DefaultRouter()
+router.register(r'cardset', CardPostViewSet, basename="cardset")
 
 urlpatterns = [
      path('cards/<int:id_user>', CardPostView.as_view(), name='get_cards'),
@@ -24,7 +29,8 @@ urlpatterns = [
          FriendRequests.as_view(), name='get_friend_requests'),
      path('friend_requests/',
          FriendRequests.as_view(), name='post_friend_requests'),
-     
+     path('', include(router.urls)),
+     path('api-token-auth/', CustomAuthToken.as_view())
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 urlpatterns += path('login',views.login),

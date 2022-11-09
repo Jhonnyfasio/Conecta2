@@ -26,9 +26,10 @@ import re
 # Create your views here.
 
 class SuggestionViewSet(viewsets.ViewSet):
-    permission_classes = (IsAuthenticated,)
+    #permission_classes = (IsAuthenticated,)
 
     def retrieve(self, request, pk):
+        http_method_names = ["post"]
         queryset = User.objects.all()
         user = get_list_or_404(queryset,id=pk)
         serializer = UserSerializers(user)

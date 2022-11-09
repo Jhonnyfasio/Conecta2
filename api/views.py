@@ -6,10 +6,13 @@ from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 from rest_framework.authtoken.models import Token
+from rest_framework.authtoken.views import ObtainAuthToken
 from django.contrib.auth.models import User as UserD
 from django.contrib.auth.hashers import check_password
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework import viewsets
+from api.serializer import UserSerializers
 from .models import CardPost, Category, FriendRequest, StatusFriendRequest, User, Like, Save
 import json
 
@@ -20,6 +23,7 @@ import json
 #@api_view(['GET'])
 @api_view(['POST'])
 def login(request):
+    print("ni")
     email = request.POST.get('email')
     password = request.POST.get('password')
     try:
@@ -37,11 +41,43 @@ def login(request):
     return Response(token.key)
 #///
 
+class CardPostViewSet(viewsets.ViewSet):
+    serializer_class = UserSerializers
+    query_set = UserSerializers.Meta.model.objects.all()
+
+
+    def list(self, request, id_user):
+        user = User.objects.get(id=id_user)
+        cards = list(CardPost.objects.exclude(user_id=user).annotate(isLike=Count(
+            'like_card', filter=Q(like_card__status=True, like_card__user_id=user), distinct=True)).annotate(isSave=Count(
+                'save_card', filter=Q(save_card__status=True, save_card__user_id=user), distinct=True)).annotate(countLike=Count(
+                    'like_card', filter=Q(like_card__status=True), distinct=True)).values('id', 'user_id__name', 'user_id__image', 'content', 'category_id', 'user_id', 'isLike', 'isSave', 'countLike'))
+        if len(cards) > 0:
+            data = {'cards': cards}
+        else:
+            data = {'message': 'Cards not found...'}
+        return JsonResponse(data)
+
+
+class CustomAuthToken(ObtainAuthToken):
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data,
+                                           context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data['user']
+        token, created = Token.objects.get_or_create(user=user)
+        return Response({
+            'id' : user.pk,
+            'token': token.key,
+        })
+
 class CardPostView(View):
     @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
 
+    
     def get(self, request, id_user):
         user = User.objects.get(id=id_user)
         cards = list(CardPost.objects.exclude(user_id=user).annotate(isLike=Count(

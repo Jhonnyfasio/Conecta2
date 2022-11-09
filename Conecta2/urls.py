@@ -27,5 +27,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('api.urls')),
     path('ia/', include('gestionUsuarios.urls')),
+    path('apirest/', include('api.routers')),
     path('api-token-auth/', views.obtain_auth_token)
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
