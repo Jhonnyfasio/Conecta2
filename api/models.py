@@ -19,7 +19,7 @@ class StatusFriendRequest(models.Model):
 class User(AbstractUser):
     
     name = models.CharField(max_length=1000)
-    email = models.EmailField(default='pedromorales2@gmail.com', unique=True)
+    email = models.EmailField(default='contacto@gmail.com', unique=True)
     username = models.CharField(max_length=100)
     english_level = models.ForeignKey(EnglishLevel, blank=True, null=True, on_delete=models.CASCADE,
                                       related_name='user_english_level')
@@ -27,7 +27,7 @@ class User(AbstractUser):
     id_firebase = models.CharField(max_length=1000, default="aaa")
     image = models.CharField(max_length=5000, default="aaaa")
     image_up = models.ImageField(null=True, blank=True ,upload_to='images/')
-    last_login = models.DateTimeField(auto_now_add=True)
+    last_login = models.DateTimeField()
     REQUIRED_FIELDS = ['username']
     USERNAME_FIELD = 'email'
 
