@@ -25,8 +25,9 @@ import re
 
 # Create your views here.
 
-class SuggestionViewSet(viewsets.ViewSet):
-    #permission_classes = (IsAuthenticated,)
+class SuggestionViewSet(viewsets.ModelViewSet):
+    serializer_class = UserSerializers
+    queryset = UserSerializers.Meta.model.objects.all()
 
     def retrieve(self, request, pk):
         http_method_names = ["post"]
@@ -45,15 +46,11 @@ class SuggestionViewSet(viewsets.ViewSet):
     
 
 class SuggestionView(View):
-    permission_classes = (IsAuthenticated,)
     @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, id_user):
-        print(request.Token)
-        permission_classes = (IsAuthenticated,)
-
         dataFrame = Suggestion(id_user)
         if len(dataFrame) > 0:
             data = {'message': 'Success', 'cards': dataFrame}
