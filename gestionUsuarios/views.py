@@ -109,12 +109,12 @@ def Suggestion(idUser):
     #Guardar la información de las cards y usuarios en un QuerySet
     cardList = list(Card.objects.exclude(user=idUser).values('id', 'user'))
     userList = list(User.objects.values('id'))
-    likeList = Like.objects.exclude(user=idUser).values('id','user','card','status')
-    saveList = Save.objects.exclude(user=idUser).values('id','user','card','status')
-
+    likeList = Like.objects.exclude(user=idUser).filter(status=True).values('id','user','card','status')
+    saveList = Save.objects.exclude(user=idUser).filter(status=True).values('id','user','card','status')
+    print(len(likeList))
     # Comprobar datos para iterar
     if len(cardList) <= 0 or len(userList) <= 0  or len(list(likeList)) <= 0 or len(list(saveList)) <= 0:
-        return JsonResponse({"message:": "Failure, no data found"})
+        return 0
 
     # Extraer las cards con like y saved del usuario a sugerir y guardado en un dataframe
     inputCardsLike = pd.DataFrame(Like.objects.filter(user=idUser,status=True).order_by('card').values('card'))
@@ -122,7 +122,7 @@ def Suggestion(idUser):
     print("len")
     print(len(inputCardsLike))
     if inputCardsLike.empty and inputCardsSave.empty:
-        return JsonResponse({"message:": "Failure, no data found"})
+        return 0
     
     # Respaldar las cards extraídas con fines visuales
     inputCardsLike.to_csv("inputCardsLike.csv")
